@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>WeddingInvitation.Domain</RootNamespace>
+    <AssemblyName>WeddingInvitation.Domain</AssemblyName>
+  </PropertyGroup>
+
+</Project>

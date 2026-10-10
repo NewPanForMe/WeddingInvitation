@@ -1,0 +1,48 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34309.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingInvitation.Domain", "src\WeddingInvitation.Domain\WeddingInvitation.Domain.csproj", "{B5D9BA24-DCEF-483E-996A-40136E57855F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingInvitation.Application", "src\WeddingInvitation.Application\WeddingInvitation.Application.csproj", "{4C9E26A9-8870-4C7C-9E94-406215D69ECD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingInvitation.Infrastructure", "src\WeddingInvitation.Infrastructure\WeddingInvitation.Infrastructure.csproj", "{CC07D2AB-A657-4DA1-B98D-0E5AA4119518}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingInvitation.Api", "src\WeddingInvitation.Api\WeddingInvitation.Api.csproj", "{592AA0A3-294C-4EED-B94F-D41457BE02D6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingInvitation.Tools.ConnProbe", "tools\WeddingInvitation.Tools.ConnProbe\WeddingInvitation.Tools.ConnProbe.csproj", "{E74114D6-2D0B-4352-A9DC-A0A8E2384970}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B5D9BA24-DCEF-483E-996A-40136E57855F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5D9BA24-DCEF-483E-996A-40136E57855F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5D9BA24-DCEF-483E-996A-40136E57855F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5D9BA24-DCEF-483E-996A-40136E57855F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C9E26A9-8870-4C7C-9E94-406215D69ECD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C9E26A9-8870-4C7C-9E94-406215D69ECD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C9E26A9-8870-4C7C-9E94-406215D69ECD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C9E26A9-8870-4C7C-9E94-406215D69ECD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC07D2AB-A657-4DA1-B98D-0E5AA4119518}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC07D2AB-A657-4DA1-B98D-0E5AA4119518}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC07D2AB-A657-4DA1-B98D-0E5AA4119518}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC07D2AB-A657-4DA1-B98D-0E5AA4119518}.Release|Any CPU.Build.0 = Release|Any CPU
+		{592AA0A3-294C-4EED-B94F-D41457BE02D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{592AA0A3-294C-4EED-B94F-D41457BE02D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{592AA0A3-294C-4EED-B94F-D41457BE02D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{592AA0A3-294C-4EED-B94F-D41457BE02D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E74114D6-2D0B-4352-A9DC-A0A8E2384970}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E74114D6-2D0B-4352-A9DC-A0A8E2384970}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E74114D6-2D0B-4352-A9DC-A0A8E2384970}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E74114D6-2D0B-4352-A9DC-A0A8E2384970}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7C1E9B3A-2F4D-4C88-9E57-1A2B3C4D5E6F}
+	EndGlobalSection
+EndGlobal

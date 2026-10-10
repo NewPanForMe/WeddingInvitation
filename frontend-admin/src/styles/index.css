@@ -1,0 +1,116 @@
+:root {
+  --page-bg: #f5f6f8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--page-bg);
+  color: #333639;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 登录页 */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* 通用页面容器 */
+.page-container {
+  padding: 20px 24px 32px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.page-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.text-muted {
+  color: #8a8f99;
+  font-size: 12px;
+}
+
+/* 二维码弹窗 */
+.qrcode-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.qrcode-box img {
+  width: 240px;
+  height: 240px;
+  image-rendering: pixelated;
+  border: 1px solid #efefef;
+  border-radius: 6px;
+  background: #fff;
+  padding: 8px;
+}
+
+.link-text {
+  word-break: break-all;
+  text-align: center;
+  max-width: 100%;
+}
+
+/* 照片网格 */
+.photo-thumb {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #f0f0f0;
+  display: block;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+}

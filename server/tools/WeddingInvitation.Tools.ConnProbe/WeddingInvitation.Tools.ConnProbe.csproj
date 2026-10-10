@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>WeddingInvitation.Tools.ConnProbe</RootNamespace>
+    <AssemblyName>ConnProbe</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\WeddingInvitation.Infrastructure\WeddingInvitation.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
