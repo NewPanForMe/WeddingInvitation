@@ -426,3 +426,5 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+/.npm-cache
+/server/src/WeddingInvitation.Api/upload/2026-10-11
