@@ -1,6 +1,6 @@
 # 婚礼电子请柬系统（WeddingInvitation）
 
-一套结婚用电子请柬系统：新人把**宾客专属链接**通过微信发给被邀请人，宾客打开 `/i/{token}` 即可看到个性化请柬（称呼、婚礼时间、地点与详细地址、照片墙、桌号），并提交**出席回复（RSVP）**；新人在后台维护宾客、照片、请柬配置与统计。
+一套结婚用电子请柬系统：新人把**宾客专属链接**通过微信发给被邀请人，宾客打开 `/Wedding/i?token=...` 即可看到个性化请柬（称呼、婚礼时间、地点与详细地址、照片墙、桌号），并提交**出席回复（RSVP）**；新人在后台维护宾客、照片、请柬配置与统计。
 
 - 后端：**ASP.NET Core Web API 10.0** + EF Core 10 + Npgsql + JWT + OpenAPI + Scalar
 - 数据库：**PostgreSQL 15+**（库名 `WeddingInvitation`，连接串由**取串接口 + AES-256-GCM 解密**获得）
@@ -179,7 +179,7 @@ C# 的 `ConnProbe --payload … --key …` 对**同一份密文**解密得到**�
 | | `ConnectionString` | 本地兜底串（**两层 Base64**），留空表示不使用 |
 | `Security` | `DeliveryKey` | 取串解密主密钥（32 字节 Base64） |
 | | `Jwt:Key` / `Issuer` / `Audience` / `ExpiresMinutes` | 后台 JWT 配置，`Key` 至少 32 字节，默认有效期 120 分钟 |
-| `Invite` | `BaseUrl` / `PathTemplate` | 生成宾客专属链接与二维码内容的基地址，默认 `https://www.tunn.work/Wedding/i` + `/{token}` |
+| `Invite` | `BaseUrl` / `PathTemplate` | 生成宾客专属链接与二维码内容的基地址，默认 `https://www.tunn.work/Wedding/i` + `?token={token}` |
 | `Upload` | `RootPath` / `RequestPath` / `MaxSizeMB` / `AllowedExtensions` | 照片本地存储目录、访问前缀、大小与扩展名限制 |
 | `AdminSeed` | `Enabled` / `Username` / `Password` | 管理员表为空时自动补种默认管理员 |
 | `Cors` | `AllowedOrigins` | 留空＝允许任意来源；生产建议填站点域名 |
@@ -206,19 +206,19 @@ C# 的 `ConnProbe --payload … --key …` 对**同一份密文**解密得到**�
 |---|---|---|
 | POST | `/api/admin/login` | 登录，返回 `{ token, expiresAt, username }` |
 | POST | `/api/admin/logout` | 退出（无状态，前端清 token） |
-| PUT | `/api/admin/password` | 修改口令 `{ oldPassword, newPassword }` |
+| POST | `/api/admin/password` | 修改口令 `{ oldPassword, newPassword }` |
 | GET | `/api/admin/guests` | 分页列表：`keyword` / `status` / `page` / `pageSize` |
 | POST | `/api/admin/guests` | 新增宾客（自动生成 32 位 token） |
-| PUT | `/api/admin/guests/{id}` | 编辑宾客 |
+| POST | `/api/admin/guests/{id}` | 编辑宾客 |
 | DELETE | `/api/admin/guests/{id}` | 删除宾客（级联删除其 RSVP） |
 | POST | `/api/admin/guests/import` | CSV 批量导入（multipart 字段 `file`） |
 | GET | `/api/admin/guests/{id}/link` | 专属请柬链接（前端用 qrcode 生成二维码） |
 | GET | `/api/admin/photos` | 照片列表 |
 | POST | `/api/admin/photos/upload` | 上传照片（multipart 字段 `file`） |
-| PUT | `/api/admin/photos/{id}` | 修改标题 / 排序 / 启用状态 |
+| POST | `/api/admin/photos/{id}` | 修改标题 / 排序 / 启用状态 |
 | DELETE | `/api/admin/photos/{id}` | 删除照片（同时删除本地文件） |
-| PUT | `/api/admin/photos/sort` | 按 `{ ids: [...] }` 顺序重排 |
-| GET / PUT | `/api/admin/config` | 读取 / 更新请柬配置（**PUT 为整体替换语义**，前端始终提交完整表单） |
+| POST | `/api/admin/photos/sort` | 按 `{ ids: [...] }` 顺序重排 |
+| GET / POST | `/api/admin/config` | 读取 / 更新请柬配置（前端使用 POST，整体替换语义，始终提交完整表单） |
 | GET | `/api/admin/statistics` | 统计：总数 / 已回复 / 出席 / 不出席 / 待回复 / 预计到场人数 / 回复率 |
 
 CSV 导入列顺序：`姓名,称呼,电话,关系,桌号,可带人数`（UTF-8，首行表头可省略），返回 `{ total, imported, skipped, errors[] }`。
@@ -233,7 +233,7 @@ CSV 导入列顺序：`姓名,称呼,电话,关系,桌号,可带人数`（UTF-8�
 |---|---|
 | `admin_users` | `username`（唯一）、`password_hash`（PBKDF2-HMAC-SHA256，格式 `PBKDF2$迭代$salt$hash`） |
 | `guests` | `name`、`salutation`、`phone`、`token`（唯一，32 位随机）、`relation`、`table_no`、`max_guests`、`status`（`pending`/`attending`/`declined`） |
-| `photos` | `url`（`/uploads/yyyy-MM-dd/xxx.jpg`）、`title`、`sort_order`、`enabled` |
+| `photos` | `url`（云端为 `/Wedding/upload/yyyy-MM-dd/xxx.jpg`）、`title`、`sort_order`、`enabled` |
 | `invitation_config` | `groom_name`、`bride_name`、`wedding_time`、`venue`、`address`、`cover_url`、`rsvp_deadline`（**无经纬度字段**） |
 | `rsvp` | `guest_id`（唯一，级联删除）、`attend`、`guest_count`、`remark` |
 
@@ -262,17 +262,25 @@ Schema 以 `db/001_init.sql` 为唯一事实来源（未生成 EF Migration，�
 站点：https://www.tunn.work/Wedding
   ├── /Wedding/i/        → 请柬 H5（frontend-invitation/dist，base=/Wedding/i/）
   ├── /Wedding/admin/    → 后台管理（frontend-admin/dist，base=/Wedding/admin/）
-  ├── /Wedding/uploads/  → 照片访问前缀（Upload:RootPath 默认项目根目录 upload，按日期分目录）
+  ├── /Wedding/upload/   → 照片访问前缀（Upload:RequestPath=/Wedding/upload，Upload:RootPath 默认项目根目录 upload）
   └── /Wedding/api/      → ASP.NET Core Web API
 ```
 
-1. 后端发布：`dotnet publish server/src/WeddingInvitation.Api -c Release -o D:\publish\api`，IIS 新建应用指向该目录，应用程序池选**无托管代码**，绑定 HTTPS。
-2. 前端：`npm run build` 后把 `frontend-invitation/dist` 放到 `/Wedding/i`，`frontend-admin/dist` 放到 `/Wedding/admin` 子目录。
-3. URL Rewrite：H5 与 `/Wedding/admin` 各自做 history 回退到对应 `index.html`，并排除 `/Wedding/api`、`/Wedding/uploads`（两个前端工程的 README 有可直接复制的 `web.config` / Nginx 配置示例）。
-4. 权限：`Upload:RootPath` 需给应用程序池账号**写权限**，且**禁止执行权限**。
-5. 微信分享：必须 HTTPS；无需公众号与 JS-SDK，页面 `title`/`description`/`og:image`（`/share-cover.jpg`）即可；微信自动抓取卡片。
+> **路径大小写必须保持一致**：线上站点使用 `/Wedding`（大写 W），前端构建的 `base`、后端 `Invite:BaseUrl`、`Upload:RequestPath`、IIS/Nginx Rewrite/Proxy 都应使用同一前缀。后台管理前端会根据 `base=/Wedding/admin/` 推导接口地址 `/Wedding/api`；如果误构建为 `/wedding/admin/`，线上会请求 `/wedding/api/...`，在只配置了 `/Wedding` 的站点上会表现为“服务不可用”。
+>
+> 每次修改后台前端路径配置后，必须重新执行 `frontend-admin` 的 `npm run build` 并发布新的 `dist/`。只更新源码或后端配置不会改变浏览器已加载的旧构建产物。
+>
+> **IIS 405 注意**：IIS WebDAV 可能拦截部分更新类请求。后台会把更新类操作统一走 `POST`（例如配置、修改密码、编辑宾客、编辑照片、照片排序），以避开 WebDAV 的方法拦截。不要在不确定服务器配置权限时直接发布会移除 WebDAV module 的 `web.config`，部分 IIS 环境会因配置节锁定而变成 500。
 
-Nginx 形态同理：`/Wedding/i/` 指向 H5 的 `try_files $uri $uri/ /Wedding/i/index.html`，`/Wedding/admin/` 指向后台，`/Wedding/api`、`/Wedding/uploads` 反代到后端。
+1. 后端发布：`dotnet publish server/src/WeddingInvitation.Api -c Release -o D:\publish\api`，IIS 新建应用指向该目录，应用程序池选**无托管代码**，绑定 HTTPS。
+2. 前端：邀请页执行 `npm run build` 后把 `frontend-invitation/dist` 放到 `/Wedding/i`；后台执行 `npm run build` 后把 `frontend-admin/dist` 放到 `/Wedding/admin` 子目录。
+3. URL Rewrite：新邀请链接使用 `/Wedding/i?token=...`，邀请页不依赖 history fallback，也不需要前端 `web.config`；后台 `/Wedding/admin` 如需刷新子页面，仍需做 history 回退并排除 `/Wedding/api`、`/Wedding/upload`。
+4. 权限：`Upload:RootPath` 需给应用程序池账号**写权限**，且**禁止执行权限**。
+5. 微信分享：未认证公众号无法使用 JS-SDK 自定义转发接口，邀请页改为普通网页卡片抓取方案。`index.html` 固定提供 `title` / `description` / `og:image`，微信会按自身规则抓取和缓存；标题、摘要、封面不保证每次实时更新。
+
+> **部署隔离注意**：后端 API、邀请页、后台管理必须部署到各自目录。邀请页不再发布 `web.config`，避免覆盖 API 配置。API 的 `web.config` 必须保留 `aspNetCore` handler，否则 IIS 会返回 503 / 服务不可用。旧链接 `/Wedding/i/{token}` 仍可在服务器已配置 fallback 时兼容；新生成链接统一使用 `/Wedding/i?token=...`。
+
+Nginx 形态同理：`/Wedding/i/` 指向 H5 的 `try_files $uri $uri/ /Wedding/i/index.html`，`/Wedding/admin/` 指向后台，`/Wedding/api`、`/Wedding/upload` 反代到后端。
 
 ---
 

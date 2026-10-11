@@ -30,7 +30,7 @@ export default defineConfig({
         target: 'http://localhost:5080',
         changeOrigin: true
       },
-      '/Wedding/uploads': {
+      '/Wedding/upload': {
         target: 'http://localhost:5080',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/Wedding/, '')

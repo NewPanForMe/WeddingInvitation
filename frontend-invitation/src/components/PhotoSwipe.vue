@@ -53,7 +53,7 @@ function preview(index: number): void {
       >
         <van-swipe-item v-for="(photo, index) in gallery" :key="photo.id">
           <div class="photo-wall__slide" @click="preview(index)">
-            <van-image :src="photo.url" fit="cover" radius="12" class="photo-wall__image">
+            <van-image :src="photo.url" fit="contain" radius="12" class="photo-wall__image">
               <template #loading>
                 <van-loading type="spinner" color="#B4886B" size="20" />
               </template>
@@ -77,7 +77,7 @@ function preview(index: number): void {
         :class="{ 'is-active': index === activeIndex }"
         @click="preview(index)"
       >
-        <van-image :src="photo.url" fit="cover" radius="8" width="100%" height="100%" />
+        <van-image :src="photo.url" fit="contain" radius="8" width="100%" height="100%" />
       </button>
     </div>
 
@@ -113,7 +113,7 @@ function preview(index: number): void {
 .photo-wall__slide :deep(img) {
   width: 100%;
   height: 320px;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .photo-wall__error {

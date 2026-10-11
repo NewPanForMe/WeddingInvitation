@@ -1,18 +1,18 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
-  // 请柬主页面：应用部署在 /Wedding/i，宾客收到的是 /Wedding/i/{token}
+  // 请柬主页面：新链接使用 /Wedding/i?token=xxx，避免 IIS history rewrite 依赖。
   {
-    path: '/:token',
+    path: '/',
     name: 'invite',
     component: () => import('@/views/Invite.vue'),
     meta: { title: '婚礼邀请函' }
   },
-  // 无 token 的提示页
+  // 兼容旧链接：/Wedding/i/{token}
   {
-    path: '/',
-    name: 'home',
-    component: () => import('@/views/Home.vue'),
+    path: '/:token',
+    name: 'invite-legacy',
+    component: () => import('@/views/Invite.vue'),
     meta: { title: '婚礼邀请函' }
   },
   // 兜底：地址无效 / token 失效等统一走错误页

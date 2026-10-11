@@ -21,9 +21,9 @@ export async function createGuest(payload: GuestUpsertPayload): Promise<GuestDto
   return data
 }
 
-/** PUT /api/admin/guests/{id} */
+/** POST /api/admin/guests/{id} */
 export async function updateGuest(id: number, payload: GuestUpsertPayload): Promise<GuestDto> {
-  const { data } = await http.put<GuestDto>(`/admin/guests/${id}`, payload)
+  const { data } = await http.post<GuestDto>(`/admin/guests/${id}`, payload)
   return data
 }
 

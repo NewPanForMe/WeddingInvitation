@@ -34,7 +34,7 @@ export interface InviteConfig {
   venue: string
   /** 详细地址，如「XX市XX区XX路88号」 */
   address: string
-  /** 封面图，相对路径如 /uploads/cover.jpg */
+  /** 封面图，相对路径如 /Wedding/upload/cover.jpg */
   coverUrl: string
   /** 回复截止时间（ISO 8601 带时区） */
   rsvpDeadline: string
@@ -43,7 +43,7 @@ export interface InviteConfig {
 /** 照片墙条目 */
 export interface InvitePhoto {
   id: number
-  /** 相对路径如 /uploads/1.jpg */
+  /** 相对路径如 /Wedding/upload/1.jpg */
   url: string
   title: string
   sortOrder: number

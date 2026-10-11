@@ -43,7 +43,7 @@ npm run dev
 | 前缀 | 目标 |
 | --- | --- |
 | `/api`、`/Wedding/api` | `http://localhost:5080` |
-| `/uploads`、`/Wedding/uploads` | `http://localhost:5080` |
+| `/uploads`、`/Wedding/upload` | `http://localhost:5080` |
 
 即开发时请在 `http://localhost:5080` 启动后端服务；若后端地址不同，直接修改 `vite.config.ts` 中的 `server.proxy` 目标即可（同时 `base` 保持 `/Wedding/admin/`）。
 
@@ -74,7 +74,7 @@ dist/
 
 - `vite.config.ts` 中 `base: '/Wedding/admin/'`，构建后的 `index.html` 会自动引用 `/Wedding/admin/assets/...`；
 - 路由使用 `createWebHistory(import.meta.env.BASE_URL)`，所以**必须**在服务器为 `/Wedding/admin/*` 配置 history 回退（SPA fallback），否则刷新子页面会 404；
-- `/Wedding/uploads/*` 由后端提供，前端按返回的路径直接引用，请确保站点下的 `/Wedding/uploads` 已被后端/反向代理接管。
+- `/Wedding/upload/*` 由后端提供，前端按返回的路径直接引用，请确保站点下的 `/Wedding/upload` 已被后端/反向代理接管。
 
 ### IIS
 
@@ -125,7 +125,7 @@ server {
     }
 
     # 静态上传资源由后端提供
-    location /uploads/ {
+    location /Wedding/upload/ {
         proxy_pass http://127.0.0.1:5080;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -150,7 +150,7 @@ server {
 | `admin` | `admin123` |
 
 登录成功后 token 保存于 `localStorage`，键名 `wedding_admin_token`（另存 `wedding_admin_username`、`wedding_admin_expires_at`）。
-登录页右上角「修改密码」可调用 `PUT /api/admin/password` 更换密码。
+登录页右上角「修改密码」可调用 `POST /api/admin/password` 更换密码。
 所有后台接口（除 `POST /api/admin/login`）都会自动携带请求头 `Authorization: Bearer <token>`；收到 401 时前端会清空登录态并跳转登录页。
 
 ## 7. 页面与目录结构
@@ -195,20 +195,20 @@ src/
 | --- | --- | --- | --- |
 | 1 | POST | `/api/admin/login` | 登录，返回 `{ token, expiresAt, username }` |
 | 2 | POST | `/api/admin/logout` | 退出登录 |
-| 3 | PUT | `/api/admin/password` | 修改密码 `{ oldPassword, newPassword }` |
+| 3 | POST | `/api/admin/password` | 修改密码 `{ oldPassword, newPassword }` |
 | 4 | GET | `/api/admin/guests` | 宾客分页列表，支持 `keyword`、`status`、`page`、`pageSize` |
 | 5 | POST | `/api/admin/guests` | 新增宾客 |
-| 6 | PUT | `/api/admin/guests/{id}` | 编辑宾客 |
+| 6 | POST | `/api/admin/guests/{id}` | 编辑宾客 |
 | 7 | DELETE | `/api/admin/guests/{id}` | 删除宾客 |
 | 8 | POST | `/api/admin/guests/import` | CSV 导入（multipart，字段名 `file`，UTF-8，列序：姓名,称呼,电话,关系,桌号,可带人数） |
 | 9 | GET | `/api/admin/guests/{id}/link` | 获取邀请链接 `{ token, url }`，前端渲染二维码 |
 | 10 | GET | `/api/admin/photos` | 照片列表 |
 | 11 | POST | `/api/admin/photos/upload` | 上传照片（multipart，字段名 `file`，jpg/jpeg/png/webp，≤10MB） |
-| 12 | PUT | `/api/admin/photos/{id}` | 更新标题 / 排序号 / 启用状态 |
+| 12 | POST | `/api/admin/photos/{id}` | 更新标题 / 排序号 / 启用状态 |
 | 13 | DELETE | `/api/admin/photos/{id}` | 删除照片 |
-| 14 | PUT | `/api/admin/photos/sort` | 按 `{ ids: [...] }` 顺序重排 sortOrder |
+| 14 | POST | `/api/admin/photos/sort` | 按 `{ ids: [...] }` 顺序重排 sortOrder |
 | 15 | GET | `/api/admin/config` | 读取婚礼配置 |
-| 16 | PUT | `/api/admin/config` | 保存婚礼配置（**仅详细地址，无经纬度字段**） |
+| 16 | POST | `/api/admin/config` | 保存婚礼配置（仅详细地址，无经纬度字段） |
 | 17 | GET | `/api/admin/statistics` | 统计数据（总宾客/已回复/出席/不出席/待回复/预计到场/回复率） |
 
 错误结构：非 2xx 时响应体为 `{ "code": 401, "message": "用户名或密码错误" }`，前端统一以 `message` 弹出提示。

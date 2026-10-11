@@ -8,8 +8,8 @@ public class UploadOptions
     /// <summary>物理根目录。相对路径会由 API 项目解析到项目根目录，例如 upload。</summary>
     public string RootPath { get; set; } = "upload";
 
-    /// <summary>对外访问前缀，例如 /uploads。</summary>
-    public string RequestPath { get; set; } = "/uploads";
+    /// <summary>对外访问前缀，例如 /Wedding/upload。</summary>
+    public string RequestPath { get; set; } = "/Wedding/upload";
 
     /// <summary>单文件大小上限（MB）。</summary>
     public int MaxSizeMB { get; set; } = 10;

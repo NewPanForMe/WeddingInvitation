@@ -60,6 +60,7 @@ builder.Services.AddScoped<GuestService>();
 builder.Services.AddScoped<PhotoService>();
 builder.Services.AddScoped<ConfigService>();
 builder.Services.AddScoped<StatisticsService>();
+builder.Services.AddMemoryCache();
 
 // ---------------------------------------------------------------------------
 // 5. Web 基础设施：控制器 / 统一模型校验错误 / OpenAPI + Scalar / CORS / JWT

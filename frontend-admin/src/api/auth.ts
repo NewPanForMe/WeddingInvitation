@@ -13,8 +13,8 @@ export async function logout(): Promise<SimpleResult> {
   return data
 }
 
-/** PUT /api/admin/password */
+/** POST /api/admin/password */
 export async function changePassword(payload: ChangePasswordPayload): Promise<SimpleResult> {
-  const { data } = await http.put<SimpleResult>('/admin/password', payload)
+  const { data } = await http.post<SimpleResult>('/admin/password', payload)
   return data
 }

@@ -17,9 +17,9 @@ export async function uploadPhoto(file: File): Promise<PhotoDto> {
   return data
 }
 
-/** PUT /api/admin/photos/{id} */
+/** POST /api/admin/photos/{id} */
 export async function updatePhoto(id: number, payload: PhotoUpdatePayload): Promise<PhotoDto> {
-  const { data } = await http.put<PhotoDto>(`/admin/photos/${id}`, payload)
+  const { data } = await http.post<PhotoDto>(`/admin/photos/${id}`, payload)
   return data
 }
 
@@ -29,8 +29,8 @@ export async function deletePhoto(id: number): Promise<SimpleResult> {
   return data
 }
 
-/** PUT /api/admin/photos/sort —— 按数组顺序重排 sortOrder */
+/** POST /api/admin/photos/sort —— 按数组顺序重排 sortOrder */
 export async function sortPhotos(ids: number[]): Promise<SimpleResult> {
-  const { data } = await http.put<SimpleResult>('/admin/photos/sort', { ids })
+  const { data } = await http.post<SimpleResult>('/admin/photos/sort', { ids })
   return data
 }

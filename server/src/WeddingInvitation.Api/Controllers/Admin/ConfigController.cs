@@ -22,7 +22,7 @@ public class ConfigController : ControllerBase
         return Ok(config);
     }
 
-    [HttpPut]
+    [HttpPost]
     public async Task<ActionResult<InvitationConfigDto>> UpdateAsync(
         [FromBody] InvitationConfigUpdateRequest request,
         CancellationToken cancellationToken)

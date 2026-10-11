@@ -15,7 +15,7 @@
         本页面是为每位宾客单独生成的电子请柬，需要通过新人发送的专属链接访问。
       </p>
       <p class="home__text home__text--muted">
-        链接格式为：<code>/i/您的专属码</code>
+        链接格式为：<code>/Wedding/i?token=您的专属码</code>
       </p>
       <p class="home__text">
         如果您是通过微信收到的邀请，请直接点击消息中的链接；若链接打不开，请联系新人重新发送。

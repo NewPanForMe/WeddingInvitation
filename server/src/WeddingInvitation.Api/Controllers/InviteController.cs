@@ -15,6 +15,7 @@ public class InviteController : ControllerBase
 
     /// <summary>按宾客专属 token 获取请柬数据。</summary>
     [HttpGet("{token}")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public async Task<ActionResult<InviteResponse>> GetAsync(string token, CancellationToken cancellationToken)
     {
         var response = await _inviteService.GetAsync(token, cancellationToken);

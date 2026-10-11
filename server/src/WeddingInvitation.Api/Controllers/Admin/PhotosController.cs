@@ -36,7 +36,7 @@ public class PhotosController : ControllerBase
         return Ok(photo);
     }
 
-    [HttpPut("{id:long}")]
+    [HttpPost("{id:long}")]
     public async Task<ActionResult<PhotoDto>> UpdateAsync(
         long id,
         [FromBody] PhotoUpdateRequest request,
@@ -54,7 +54,7 @@ public class PhotosController : ControllerBase
     }
 
     /// <summary>按传入的 id 顺序重排照片。</summary>
-    [HttpPut("sort")]
+    [HttpPost("sort")]
     public async Task<ActionResult<OperationResult>> SortAsync(
         [FromBody] PhotoSortRequest request,
         CancellationToken cancellationToken)

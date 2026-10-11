@@ -32,9 +32,9 @@ function scrollToRsvp(): void {
 
 <template>
   <header class="cover" :class="{ 'cover--empty': !hasCover }">
-    <van-image v-if="hasCover" :src="coverUrl" fit="cover" class="cover__image" alt="婚礼封面">
+    <van-image v-if="hasCover" :src="coverUrl" fit="contain" class="cover__image" alt="婚礼封面">
       <template #error>
-        <van-image v-if="firstPhoto" :src="firstPhoto" fit="cover" class="cover__image" />
+        <van-image v-if="firstPhoto" :src="firstPhoto" fit="contain" class="cover__image" />
       </template>
     </van-image>
 
@@ -70,7 +70,7 @@ function scrollToRsvp(): void {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .cover__mask {

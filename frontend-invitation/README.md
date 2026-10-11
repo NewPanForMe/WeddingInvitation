@@ -1,10 +1,10 @@
 # 婚礼电子请柬 H5（frontend-invitation）
 
-移动端优先的婚礼电子请柬前端。新人通过微信把专属链接 `https://www.tunn.work/Wedding/i/{token}` 发给宾客，
+移动端优先的婚礼电子请柬前端。新人通过微信把专属链接 `https://www.tunn.work/Wedding/i?token={token}` 发给宾客，
 宾客打开后即可看到个性化请柬：封面、新人姓名、婚礼时间、地点（场所名 + 详细地址）、照片墙、
 自己的桌号，并可提交出席回复（RSVP）。
 
-无背景音乐、无微信 JS-SDK 依赖，纯 H5 页面。
+无背景音乐；未认证公众号无法使用 JS-SDK 自定义转发接口，微信分享依赖页面静态 meta 信息自动抓取。
 
 ---
 
@@ -41,7 +41,7 @@ npm run dev
 
 ### 本地预览一条请柬
 
-浏览器打开：`http://localhost:5173/Wedding/i/abc`（`abc` 为后端签发的 token）。
+浏览器打开：`http://localhost:5173/Wedding/i?token=abc`（`abc` 为后端签发的 token）。
 
 ### 后端地址怎么改
 
@@ -73,8 +73,10 @@ $env:BACKEND_ORIGIN="http://192.168.1.10:5080"; npm run dev
 BACKEND_ORIGIN=http://192.168.1.10:5080 npm run dev
 ```
 
-> 前端 axios 会从 Vite `base` 推导站点根路径，正式环境请求走同源相对路径（`/Wedding/api/...`、`/Wedding/uploads/...`）。
+> 前端 axios 会从 Vite `base` 推导站点根路径，正式环境请求走同源相对路径（`/Wedding/api/...`、`/Wedding/upload/...`）。
 > 因此开发靠代理、生产靠同源部署，代码本身不需要改动。
+
+微信分享卡片依赖 `index.html` 中的静态 `title` / `description` / `og:image`。未认证公众号不能调用 JS-SDK 自定义分享接口，因此分享标题、摘要、封面由微信抓取和缓存，修改后可能不会立刻刷新。
 
 ---
 
@@ -151,8 +153,7 @@ npm install-scripts approve esbuild vue-demi
 
 把 `dist/` 里的**全部文件**放到站点 `/Wedding/i` 目录（`base` 为 `/Wedding/i/`）。
 
-因为路由使用 History 模式（`/Wedding/i/{token}`），
-服务器必须配置 **history 回退**：找不到的静态文件一律回退到 `index.html`。
+> **重要**：不要把邀请页 `dist` 上传到后端 API 发布目录。邀请页新链接使用 `/Wedding/i?token=...`，不需要 IIS `web.config` 或 history fallback；后端 `web.config` 里有 `aspNetCore` handler，一旦被静态站点配置覆盖，API 会变成 503 / 服务不可用。
 
 ### Nginx
 
@@ -180,12 +181,12 @@ server {
     }
 
     # 照片等上传资源同样由后端提供
-    location /uploads/ {
+    location /Wedding/upload/ {
         proxy_pass http://127.0.0.1:5080;
         proxy_set_header Host $host;
     }
 
-    # history 回退：请柬链接 /Wedding/i/xxx 必须能直接打开
+    # 邀请页入口：新链接使用 /Wedding/i?token=xxx，不依赖 history fallback
     location /Wedding/i/ {
         try_files $uri $uri/ /Wedding/i/index.html;
     }
@@ -195,34 +196,9 @@ server {
 若后端与前端**不同域**，则去掉 `/api/`、`/uploads/` 的 proxy_pass，
 改为在后端配置 CORS，并让前端以完整域名访问（需要改 `src/api/http.ts` 的 `baseURL`）。
 
-### IIS（web.config）
+### IIS
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-  <system.webServer>
-    <rewrite>
-      <rules>
-        <rule name="History Fallback" stopProcessing="true">
-          <match url=".*" />
-          <conditions logicalGrouping="MatchAll">
-            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
-            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
-            <add input="{REQUEST_URI}" pattern="^/Wedding/(admin|api|uploads)(/|$)" negate="true" />
-          </conditions>
-          <action type="Rewrite" url="/Wedding/i/index.html" />
-        </rule>
-      </rules>
-    </rewrite>
-    <staticContent>
-      <remove fileExtension=".json" />
-      <mimeMap fileExtension=".json" mimeType="application/json" />
-    </staticContent>
-  </system.webServer>
-</configuration>
-```
-
-IIS 需要安装 **URL Rewrite** 模块；`/api`、`/uploads` 由反向代理（ARR）或同站点应用处理。
+邀请页部署到 `/Wedding/i` 静态目录即可，新链接格式为 `/Wedding/i?token=xxx`，不需要邀请页自己的 `web.config`。如果后端 API 发布目录里的 `web.config` 被覆盖，请重新发布后端 API，或从 `server/src/WeddingInvitation.Api/web.config` 恢复带 `aspNetCore` handler 的版本。
 
 ### 分享封面
 
@@ -241,7 +217,7 @@ frontend-invitation/
 ├── package.json
 ├── tsconfig.json
 ├── tsconfig.node.json
-├── vite.config.ts                # base '/Wedding/i/'，/api、/Wedding/api 与 /uploads、/Wedding/uploads 代理到 http://localhost:5080
+├── vite.config.ts                # base '/Wedding/i/'，/api、/Wedding/api 与 /uploads、/Wedding/upload 代理到 http://localhost:5080
 ├── .npmrc                        # 镜像源 + 工程内 npm 缓存目录
 ├── .gitignore
 └── src/
@@ -290,10 +266,10 @@ frontend-invitation/
     "weddingTime": "2026-10-01T04:00:00+00:00",
     "venue": "XX酒店 3楼宴会厅",
     "address": "XX市XX区XX路88号",
-    "coverUrl": "/uploads/cover.jpg",
+    "coverUrl": "/Wedding/upload/cover.jpg",
     "rsvpDeadline": "2026-09-20T15:59:59+00:00"
   },
-  "photos": [{ "id": 1, "url": "/uploads/1.jpg", "title": "外景", "sortOrder": 1 }],
+  "photos": [{ "id": 1, "url": "/Wedding/upload/1.jpg", "title": "外景", "sortOrder": 1 }],
   "rsvp": { "submitted": false, "attend": null, "guestCount": null, "remark": null, "updatedAt": null },
   "rsvpOpen": true
 }
@@ -309,8 +285,8 @@ frontend-invitation/
 
 ### 8.3 约定与注意点
 
-- 照片与封面 `url` 为相对路径（`/uploads/x.jpg`），由浏览器同源加载；
-  开发环境见第 3 节的代理配置，生产环境见第 6 节的 Nginx `location /uploads/` / IIS 反向代理配置。
+- 照片与封面 `url` 为相对路径（云端为 `/Wedding/upload/x.jpg`），由浏览器同源加载；
+  开发环境见第 3 节的代理配置，生产环境见第 6 节的 Nginx `location /Wedding/upload/` / IIS 反向代理配置。
 - `weddingTime` / `rsvpDeadline` 为带时区的 ISO 8601 字符串，
   前端按**访客设备本地时区**渲染；`rsvpOpen` 为 `false` 时表单整体禁用。
 - 后端应允许宾客重复提交 RSVP（页面支持“更新回复”）；

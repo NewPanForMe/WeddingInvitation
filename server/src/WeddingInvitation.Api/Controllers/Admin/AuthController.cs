@@ -31,7 +31,7 @@ public class AuthController : ControllerBase
     public ActionResult<OperationResult> Logout() => Ok(new OperationResult(true, "已退出登录"));
 
     [Authorize]
-    [HttpPut("password")]
+    [HttpPost("password")]
     public async Task<ActionResult<OperationResult>> ChangePasswordAsync(
         [FromBody] ChangePasswordRequest request,
         CancellationToken cancellationToken)

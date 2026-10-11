@@ -196,7 +196,7 @@ onMounted(loadData)
 
           <n-form-item label="封面图">
             <n-space vertical :size="10" style="width: 100%">
-              <n-input v-model:value="form.coverUrl" placeholder="例如：/uploads/cover.jpg" clearable />
+              <n-input v-model:value="form.coverUrl" placeholder="例如：/Wedding/upload/cover.jpg" clearable />
               <n-space align="center" :size="12">
                 <PhotoUpload text="上传封面图" @uploaded="handleCoverUploaded" />
                 <n-text depth="3" class="text-muted">jpg / jpeg / png / webp，≤ 10MB</n-text>

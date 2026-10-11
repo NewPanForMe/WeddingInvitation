@@ -7,8 +7,8 @@ export async function fetchConfig(): Promise<WeddingConfig> {
   return data
 }
 
-/** PUT /api/admin/config —— 仅提交文字地址，无经纬度字段 */
+/** POST /api/admin/config —— 仅提交文字地址，无经纬度字段；POST 避免 IIS/WebDAV 拦截更新请求。 */
 export async function updateConfig(payload: WeddingConfigPayload): Promise<WeddingConfig> {
-  const { data } = await http.put<WeddingConfig>('/admin/config', payload)
+  const { data } = await http.post<WeddingConfig>('/admin/config', payload)
   return data
 }

@@ -5,7 +5,7 @@ public class Photo
 {
     public long Id { get; set; }
 
-    /// <summary>访问路径，例如 /uploads/xxx.jpg。</summary>
+    /// <summary>访问路径，例如 /Wedding/upload/xxx.jpg。</summary>
     public string Url { get; set; } = string.Empty;
 
     public string? Title { get; set; }

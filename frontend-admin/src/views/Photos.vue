@@ -12,6 +12,7 @@ import {
   NInput,
   NInputNumber,
   NModal,
+  NPopconfirm,
   NSpace,
   NSpin,
   NSwitch,
@@ -40,7 +41,9 @@ const editModal = reactive({
 
 const total = computed(() => photos.value.length)
 const enabledCount = computed(() => photos.value.filter((p) => p.enabled).length)
-
+onMounted(()=>{
+  loadData() 
+})
 async function loadData() {
   loading.value = true
   try {
@@ -153,7 +156,7 @@ async function move(index: number, delta: number) {
                 <n-image
                   :src="photo.url"
                   class="photo-thumb"
-                  object-fit="cover"
+                  object-fit="contain"
                   :alt="photo.title ?? '婚礼照片'"
                   lazy
                 />
@@ -244,5 +247,6 @@ async function move(index: number, delta: number) {
 .photo-card :deep(.n-card-cover) {
   height: 160px;
   overflow: hidden;
+  background: #f7f7f9;
 }
 </style>

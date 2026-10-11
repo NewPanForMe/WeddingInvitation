@@ -34,7 +34,7 @@ create index if not exists idx_guests_token  on guests (token);
 create index if not exists idx_guests_status on guests (status);
 create index if not exists idx_guests_name   on guests (name);
 
--- 3. 照片表（服务器本地目录存储，url 形如 /uploads/xxx.jpg）
+-- 3. 照片表（服务器本地目录存储，url 形如 /Wedding/upload/xxx.jpg）
 create table if not exists photos (
     id         bigserial   primary key,
     url        text        not null,
@@ -86,7 +86,7 @@ select
     now() + interval '30 days',
     'XX酒店 3楼宴会厅',
     'XX市XX区XX路88号',
-    '/uploads/cover.jpg',
+    '/Wedding/upload/cover.jpg',
     now() + interval '20 days'
 where not exists (select 1 from invitation_config);
 

@@ -37,7 +37,7 @@ public class GuestsController : ControllerBase
         return Ok(guest);
     }
 
-    [HttpPut("{id:long}")]
+    [HttpPost("{id:long}")]
     public async Task<ActionResult<GuestDto>> UpdateAsync(
         long id,
         [FromBody] GuestUpsertRequest request,

@@ -11,7 +11,7 @@ import RsvpForm from '@/components/RsvpForm.vue'
 const route = useRoute()
 const store = useInviteStore()
 
-const token = computed(() => String(route.params.token ?? ''))
+const token = computed(() => String(route.query.token ?? route.query.t ?? route.params.token ?? ''))
 
 /** 页面标题：{新人姓名} 的婚礼邀请 */
 function applyTitle(): void {
@@ -34,7 +34,11 @@ watch(
   { immediate: true }
 )
 
-watch(() => store.config, applyTitle, { deep: true })
+watch(
+  () => store.config,
+  applyTitle,
+  { deep: true }
+)
 
 const isLoading = computed(() => store.loadState === 'loading' || store.loadState === 'idle')
 const isError = computed(() => store.loadState === 'error')

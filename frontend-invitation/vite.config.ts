@@ -30,9 +30,9 @@ export default defineConfig({
         ...proxyTarget,
         rewrite: (path) => path.replace(/^\/Wedding/, '')
       },
-      // 图片等静态资源（合同约定照片 url 为 /uploads/x.jpg 相对路径）
+      // 图片等静态资源（云端照片 url 为 /Wedding/upload/x.jpg）
       '/uploads': proxyTarget,
-      '/Wedding/uploads': {
+      '/Wedding/upload': {
         ...proxyTarget,
         rewrite: (path) => path.replace(/^\/Wedding/, '')
       }

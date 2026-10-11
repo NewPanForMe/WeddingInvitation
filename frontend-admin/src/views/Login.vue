@@ -84,9 +84,7 @@ async function handleLogin() {
           <n-button type="primary" block :loading="loading" @click="handleLogin">
             登 录
           </n-button>
-          <n-alert type="info" :show-icon="false" size="small">
-            默认管理员账号：<b>admin</b> / 密码：<b>admin123</b>
-          </n-alert>
+      
         </n-space>
       </n-form>
     </n-card>
