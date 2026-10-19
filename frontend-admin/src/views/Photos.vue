@@ -41,6 +41,8 @@ const editModal = reactive({
 
 const total = computed(() => photos.value.length)
 const enabledCount = computed(() => photos.value.filter((p) => p.enabled).length)
+const coverCount = computed(() => photos.value.filter((p) => p.type === 'cover').length)
+const photoTypeText = (photo: PhotoDto) => (photo.type === 'cover' ? '封面图' : '美好瞬间')
 onMounted(()=>{
   loadData() 
 })
@@ -140,6 +142,7 @@ async function move(index: number, delta: number) {
         <n-space align="center" :size="12">
           <n-tag size="small" :bordered="false">共 {{ total }} 张</n-tag>
           <n-tag size="small" type="success" :bordered="false">启用 {{ enabledCount }} 张</n-tag>
+          <n-tag size="small" type="warning" :bordered="false">封面 {{ coverCount }} 张</n-tag>
           <span v-if="sortSaving" class="text-muted">排序保存中…</span>
           <PhotoUpload text="上传照片" @uploaded="handleUploaded" />
           <n-button size="small" quaternary :loading="loading" @click="loadData">刷新</n-button>
@@ -149,8 +152,8 @@ async function move(index: number, delta: number) {
       <n-spin :show="loading">
         <n-empty v-if="!photos.length && !loading" description="还没有照片，点击右上角「上传照片」开始" style="padding: 60px 0" />
 
-        <n-grid v-else :cols="24" :x-gap="16" :y-gap="16" responsive="screen" item-responsive>
-          <n-gi v-for="(photo, index) in photos" :key="photo.id" span="24 s:12 m:8 l:6">
+        <n-grid v-else :cols="24" :x-gap="12" :y-gap="12" responsive="screen" item-responsive>
+          <n-gi v-for="(photo, index) in photos" :key="photo.id" span="24 s:12 m:6 l:4">
             <n-card size="small" :bordered="false" class="photo-card">
               <template #cover>
                 <n-image
@@ -165,6 +168,9 @@ async function move(index: number, delta: number) {
               <n-space vertical :size="8">
                 <n-space justify="space-between" align="center">
                   <n-tag size="tiny" :bordered="false">排序 {{ photo.sortOrder }}</n-tag>
+                  <n-tag size="tiny" :type="photo.type === 'cover' ? 'warning' : 'info'" :bordered="false">
+                    {{ photoTypeText(photo) }}
+                  </n-tag>
                   <n-switch
                     size="small"
                     :value="photo.enabled"
@@ -245,7 +251,7 @@ async function move(index: number, delta: number) {
 }
 
 .photo-card :deep(.n-card-cover) {
-  height: 160px;
+  height: 128px;
   overflow: hidden;
   background: #f7f7f9;
 }

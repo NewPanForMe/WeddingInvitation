@@ -11,9 +11,17 @@ public record InvitationConfigDto(
     string? Venue,
     string? Address,
     string? CoverUrl,
+    bool CoverShowInMoments,
     DateTimeOffset? RsvpDeadline);
 
-public record PhotoDto(long Id, string Url, string? Title, int SortOrder, bool Enabled, DateTimeOffset CreatedAt);
+public record PhotoDto(
+    long Id,
+    string Url,
+    string? Title,
+    int SortOrder,
+    bool Enabled,
+    string Type,
+    DateTimeOffset CreatedAt);
 
 public record RsvpInfoDto(bool Submitted, bool? Attend, int? GuestCount, string? Remark, DateTimeOffset? UpdatedAt);
 

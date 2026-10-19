@@ -14,6 +14,7 @@ internal static class Mapping
         config?.Venue,
         config?.Address,
         config?.CoverUrl,
+        config?.CoverShowInMoments ?? false,
         config?.RsvpDeadline);
 
     public static PhotoDto ToPhotoDto(Photo photo) => new(
@@ -22,6 +23,7 @@ internal static class Mapping
         photo.Title,
         photo.SortOrder,
         photo.Enabled,
+        photo.Type == PhotoType.Cover ? "cover" : "moment",
         photo.CreatedAt);
 
     public static GuestDto ToGuestDto(Guest guest) => new(

@@ -19,6 +19,9 @@ public class InvitationConfig
 
     public string? CoverUrl { get; set; }
 
+    /// <summary>是否将当前封面图同时展示在“美好瞬间”。</summary>
+    public bool CoverShowInMoments { get; set; }
+
     public DateTimeOffset? RsvpDeadline { get; set; }
 
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;

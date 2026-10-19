@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using WeddingInvitation.Application.Abstractions;
 using WeddingInvitation.Application.Common;
 using WeddingInvitation.Application.DTOs;
+using WeddingInvitation.Domain.Services;
 
 namespace WeddingInvitation.Application.Services;
 
@@ -36,6 +37,23 @@ public class InviteService
             .ThenBy(p => p.Id)
             .ToListAsync(cancellationToken);
 
+        var momentPhotos = photos
+            .Where(photo => PhotoVisibility.ShouldShowInMoments(photo, config?.CoverUrl))
+            .Select(Mapping.ToPhotoDto)
+            .ToList();
+
+        if (config?.CoverShowInMoments == true && !string.IsNullOrWhiteSpace(config.CoverUrl))
+        {
+            momentPhotos.Insert(0, new PhotoDto(
+                0,
+                config.CoverUrl,
+                "婚礼封面",
+                0,
+                true,
+                "cover",
+                config.UpdatedAt));
+        }
+
         var rsvp = await _db.Rsvps
             .AsNoTracking()
             .FirstOrDefaultAsync(r => r.GuestId == guest.Id, cancellationToken);
@@ -45,7 +63,7 @@ public class InviteService
         return new InviteResponse(
             new GuestInfoDto(guest.Name, guest.Salutation, guest.TableNo, guest.MaxGuests),
             Mapping.ToConfigDto(config),
-            photos.Select(Mapping.ToPhotoDto).ToList(),
+            momentPhotos,
             new RsvpInfoDto(rsvp is not null, rsvp?.Attend, rsvp?.GuestCount, rsvp?.Remark, rsvp?.UpdatedAt),
             rsvpOpen);
     }

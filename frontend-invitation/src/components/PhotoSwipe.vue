@@ -5,17 +5,9 @@ import type { InvitePhoto } from '@/types'
 
 const props = defineProps<{
   photos: InvitePhoto[]
-  coverUrl?: string
 }>()
 
-// 无照片时用封面兜底，避免空区块
-const gallery = computed<InvitePhoto[]>(() => {
-  if (props.photos.length > 0) return props.photos
-  if (props.coverUrl) {
-    return [{ id: 0, url: props.coverUrl, title: '婚礼现场', sortOrder: 0 }]
-  }
-  return []
-})
+const gallery = computed<InvitePhoto[]>(() => props.photos)
 
 const previewImages = computed(() => gallery.value.map((item) => item.url))
 const activeIndex = ref(0)

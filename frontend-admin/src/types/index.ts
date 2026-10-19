@@ -62,6 +62,7 @@ export interface PhotoDto {
   title: string | null
   sortOrder: number
   enabled: boolean
+  type: 'cover' | 'moment'
   createdAt: string
 }
 
@@ -79,6 +80,7 @@ export interface WeddingConfig {
   /** 详细地址（仅文字地址，禁止经纬度字段） */
   address: string
   coverUrl: string
+  coverShowInMoments: boolean
   rsvpDeadline: string
 }
 

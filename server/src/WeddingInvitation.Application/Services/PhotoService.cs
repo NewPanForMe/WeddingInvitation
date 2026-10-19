@@ -6,6 +6,7 @@ using WeddingInvitation.Application.Common;
 using WeddingInvitation.Application.DTOs;
 using WeddingInvitation.Application.Options;
 using WeddingInvitation.Domain.Entities;
+using WeddingInvitation.Domain.Enums;
 
 namespace WeddingInvitation.Application.Services;
 
@@ -38,6 +39,7 @@ public class PhotoService
         Stream stream,
         string fileName,
         long contentLength,
+        PhotoType type,
         CancellationToken cancellationToken = default)
     {
         var extension = Path.GetExtension(fileName).ToLowerInvariant();
@@ -49,8 +51,7 @@ public class PhotoService
             throw new ApiException($"只允许上传 {string.Join("/", allowed)} 格式的图片", 400);
         }
 
-        var maxBytes = Math.Max(1, _options.MaxSizeMB) * 1024L * 1024L;
-        if (contentLength > maxBytes)
+        if (PhotoUploadPolicy.ExceedsMaximumSize(type, contentLength, _options.MaxSizeMB))
         {
             throw new ApiException($"图片大小不能超过 {_options.MaxSizeMB}MB", 400);
         }
@@ -77,6 +78,7 @@ public class PhotoService
             Title = Path.GetFileNameWithoutExtension(fileName),
             SortOrder = sortOrder,
             Enabled = true,
+            Type = type,
             CreatedAt = DateTimeOffset.UtcNow,
         };
 

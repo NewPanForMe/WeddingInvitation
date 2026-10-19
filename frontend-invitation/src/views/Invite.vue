@@ -98,7 +98,7 @@ const isError = computed(() => store.loadState === 'error')
 
       <MapNav :venue="store.config.venue" :address="store.config.address" />
 
-      <PhotoSwipe :photos="store.photos" :cover-url="store.config.coverUrl" />
+      <PhotoSwipe :photos="store.photos" />
 
       <section class="table-card card card--soft">
         <h2 class="section-title">您的席位</h2>

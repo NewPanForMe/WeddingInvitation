@@ -8,6 +8,7 @@ public record InvitationConfigUpdateRequest(
     string? Venue,
     string? Address,
     string? CoverUrl,
+    bool CoverShowInMoments,
     DateTimeOffset? RsvpDeadline);
 
 /// <summary>后台更新照片信息。</summary>

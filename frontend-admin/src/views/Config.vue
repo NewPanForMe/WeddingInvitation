@@ -14,6 +14,7 @@ import {
   NInput,
   NSpin,
   NSpace,
+  NSwitch,
   NText,
   useMessage,
   type FormInst,
@@ -38,6 +39,7 @@ const form = reactive<{
   venue: string
   address: string
   coverUrl: string
+  coverShowInMoments: boolean
   rsvpDeadline: number | null
 }>({
   groomName: '',
@@ -46,6 +48,7 @@ const form = reactive<{
   venue: '',
   address: '',
   coverUrl: '',
+  coverShowInMoments: false,
   rsvpDeadline: null
 })
 
@@ -66,6 +69,7 @@ function applyConfig(cfg: WeddingConfig) {
   form.venue = cfg.venue ?? ''
   form.address = cfg.address ?? ''
   form.coverUrl = cfg.coverUrl ?? ''
+  form.coverShowInMoments = cfg.coverShowInMoments ?? false
   form.rsvpDeadline = isoToTimestamp(cfg.rsvpDeadline)
 }
 
@@ -96,6 +100,7 @@ async function handleSave() {
       venue: form.venue.trim(),
       address: form.address.trim(),
       coverUrl: form.coverUrl.trim(),
+      coverShowInMoments: form.coverShowInMoments,
       rsvpDeadline: timestampToIso(form.rsvpDeadline)
     })
     applyConfig(saved)
@@ -198,8 +203,8 @@ onMounted(loadData)
             <n-space vertical :size="10" style="width: 100%">
               <n-input v-model:value="form.coverUrl" placeholder="例如：/Wedding/upload/cover.jpg" clearable />
               <n-space align="center" :size="12">
-                <PhotoUpload text="上传封面图" @uploaded="handleCoverUploaded" />
-                <n-text depth="3" class="text-muted">jpg / jpeg / png / webp，≤ 10MB</n-text>
+                <PhotoUpload :max-size-mb="null" photo-type="cover" text="上传封面图" @uploaded="handleCoverUploaded" />
+                <n-text depth="3" class="text-muted">jpg / jpeg / png / webp</n-text>
               </n-space>
               <n-image
                 v-if="form.coverUrl"
@@ -208,6 +213,10 @@ onMounted(loadData)
                 object-fit="cover"
                 style="border-radius: 8px"
               />
+              <n-switch v-model:value="form.coverShowInMoments">
+                <template #checked>在美好瞬间展示</template>
+                <template #unchecked>不在美好瞬间展示</template>
+              </n-switch>
             </n-space>
           </n-form-item>
 

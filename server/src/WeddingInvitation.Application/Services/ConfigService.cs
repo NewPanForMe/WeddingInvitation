@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using WeddingInvitation.Application.Abstractions;
 using WeddingInvitation.Application.DTOs;
 using WeddingInvitation.Domain.Entities;
+using WeddingInvitation.Domain.Enums;
 
 namespace WeddingInvitation.Application.Services;
 
@@ -39,8 +40,19 @@ public class ConfigService
         config.Venue = Normalize(request.Venue);
         config.Address = Normalize(request.Address);
         config.CoverUrl = Normalize(request.CoverUrl);
+        config.CoverShowInMoments = request.CoverShowInMoments;
         config.RsvpDeadline = ToUtc(request.RsvpDeadline);
         config.UpdatedAt = DateTimeOffset.UtcNow;
+
+        var coverPhotos = await _db.Photos
+            .Where(photo => photo.Type == PhotoType.Cover || photo.Url == config.CoverUrl)
+            .ToListAsync(cancellationToken);
+        foreach (var photo in coverPhotos)
+        {
+            photo.Type = string.Equals(photo.Url, config.CoverUrl, StringComparison.OrdinalIgnoreCase)
+                ? PhotoType.Cover
+                : PhotoType.Moment;
+        }
 
         await _db.SaveChangesAsync(cancellationToken);
         return Mapping.ToConfigDto(config);

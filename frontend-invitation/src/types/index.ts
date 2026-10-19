@@ -36,6 +36,8 @@ export interface InviteConfig {
   address: string
   /** 封面图，相对路径如 /Wedding/upload/cover.jpg */
   coverUrl: string
+  /** 是否在美好瞬间中展示当前封面图 */
+  coverShowInMoments: boolean
   /** 回复截止时间（ISO 8601 带时区） */
   rsvpDeadline: string
 }
@@ -47,6 +49,7 @@ export interface InvitePhoto {
   url: string
   title: string
   sortOrder: number
+  type: 'cover' | 'moment'
 }
 
 /** 已有 RSVP 回复（未回复时各字段为 null） */

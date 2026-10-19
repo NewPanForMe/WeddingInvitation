@@ -16,9 +16,11 @@ const props = withDefaults(
     /** 接受的图片类型 */
     accept?: string
     /** 最大体积（MB） */
-    maxSizeMb?: number
+    maxSizeMb?: number | null
     /** 是否多选 */
     multiple?: boolean
+    /** 上传后归属的照片类型 */
+    photoType?: PhotoDto['type']
     /** 按钮文案 */
     text?: string
     /** 是否使用拖拽区域样式 */
@@ -28,6 +30,7 @@ const props = withDefaults(
     accept: '.jpg,.jpeg,.png,.webp',
     maxSizeMb: 10,
     multiple: false,
+    photoType: 'moment',
     text: '上传图片',
     dragger: false
   }
@@ -53,7 +56,7 @@ async function customRequest({ file, onFinish, onError }: UploadCustomRequestOpt
     onError()
     return
   }
-  if (raw.size > props.maxSizeMb * 1024 * 1024) {
+  if (props.maxSizeMb !== null && raw.size > props.maxSizeMb * 1024 * 1024) {
     message.error(`图片体积不能超过 ${props.maxSizeMb}MB`)
     onError()
     return
@@ -61,7 +64,7 @@ async function customRequest({ file, onFinish, onError }: UploadCustomRequestOpt
 
   uploading.value = true
   try {
-    const photo = await uploadPhoto(raw)
+    const photo = await uploadPhoto(raw, props.photoType)
     message.success('上传成功')
     emit('uploaded', photo)
     onFinish()

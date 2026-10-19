@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WeddingInvitation.Application.Common;
 using WeddingInvitation.Application.DTOs;
 using WeddingInvitation.Application.Services;
+using WeddingInvitation.Domain.Enums;
 
 namespace WeddingInvitation.Api.Controllers.Admin;
 
@@ -24,7 +25,11 @@ public class PhotosController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<ActionResult<PhotoDto>> UploadAsync(IFormFile? file, CancellationToken cancellationToken)
+    [RequestSizeLimit(long.MaxValue)]
+    public async Task<ActionResult<PhotoDto>> UploadAsync(
+        IFormFile? file,
+        [FromForm] string? type,
+        CancellationToken cancellationToken)
     {
         if (file is null || file.Length == 0)
         {
@@ -32,7 +37,15 @@ public class PhotosController : ControllerBase
         }
 
         await using var stream = file.OpenReadStream();
-        var photo = await _photoService.UploadAsync(stream, file.FileName, file.Length, cancellationToken);
+        var photoType = string.Equals(type, "cover", StringComparison.OrdinalIgnoreCase)
+            ? PhotoType.Cover
+            : PhotoType.Moment;
+        var photo = await _photoService.UploadAsync(
+            stream,
+            file.FileName,
+            file.Length,
+            photoType,
+            cancellationToken);
         return Ok(photo);
     }
 

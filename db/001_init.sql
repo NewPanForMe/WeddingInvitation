@@ -41,6 +41,7 @@ create table if not exists photos (
     title      text,
     sort_order integer     not null default 0,
     enabled    boolean     not null default true,
+    photo_type text        not null default 'moment', -- moment / cover
     created_at timestamptz not null default now()
 );
 
@@ -55,6 +56,7 @@ create table if not exists invitation_config (
     venue         text,
     address       text,
     cover_url     text,
+    cover_show_in_moments boolean not null default false,
     rsvp_deadline timestamptz,
     updated_at    timestamptz not null default now()
 );
@@ -71,6 +73,18 @@ create table if not exists rsvp (
 );
 
 create index if not exists idx_rsvp_guest on rsvp (guest_id);
+
+-- 兼容已部署数据库：将当前配置中的封面标记为封面照片，其余照片保留为美好瞬间。
+alter table photos add column if not exists photo_type text not null default 'moment';
+alter table invitation_config add column if not exists cover_show_in_moments boolean not null default false;
+
+update photos
+set photo_type = 'cover'
+where exists (
+    select 1
+    from invitation_config
+    where invitation_config.cover_url = photos.url
+);
 
 -- =============================================================================
 -- 初始化数据

@@ -27,6 +27,8 @@ public static class DbInitializer
                 return;
             }
 
+            await EnsurePhotoSchemaAsync(db, cancellationToken);
+
             if (!await db.InvitationConfigs.AnyAsync(cancellationToken))
             {
                 db.InvitationConfigs.Add(new InvitationConfig
@@ -64,6 +66,28 @@ public static class DbInitializer
         {
             logger.LogError(ex, "数据库自检失败：{Message}", ex.Message);
         }
+    }
+
+    /// <summary>兼容照片分类功能上线前创建的数据库结构。</summary>
+    private static async Task EnsurePhotoSchemaAsync(AppDbContext db, CancellationToken cancellationToken)
+    {
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE photos ADD COLUMN IF NOT EXISTS photo_type text NOT NULL DEFAULT 'moment';",
+            cancellationToken);
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE invitation_config ADD COLUMN IF NOT EXISTS cover_show_in_moments boolean NOT NULL DEFAULT false;",
+            cancellationToken);
+        await db.Database.ExecuteSqlRawAsync(
+            """
+            UPDATE photos
+            SET photo_type = 'cover'
+            WHERE EXISTS (
+                SELECT 1
+                FROM invitation_config
+                WHERE invitation_config.cover_url = photos.url
+            );
+            """,
+            cancellationToken);
     }
 
     /// <summary>仅供开发调试：确保演示宾客存在。</summary>

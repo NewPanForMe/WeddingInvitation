@@ -53,6 +53,11 @@ public class AppDbContext : DbContext, IApplicationDbContext
             builder.ToTable("photos");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Url).IsRequired();
+            builder.Property(x => x.Type)
+                .HasColumnName("photo_type")
+                .HasConversion(
+                    value => value == PhotoType.Cover ? "cover" : "moment",
+                    value => value == "cover" ? PhotoType.Cover : PhotoType.Moment);
             builder.HasIndex(x => new { x.SortOrder, x.Id }).HasDatabaseName("idx_photos_sort");
         });
 

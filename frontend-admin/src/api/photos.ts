@@ -8,9 +8,10 @@ export async function fetchPhotos(): Promise<PhotoDto[]> {
 }
 
 /** POST /api/admin/photos/upload（multipart/form-data，字段名 file） */
-export async function uploadPhoto(file: File): Promise<PhotoDto> {
+export async function uploadPhoto(file: File, type: PhotoDto['type'] = 'moment'): Promise<PhotoDto> {
   const form = new FormData()
   form.append('file', file)
+  form.append('type', type)
   const { data } = await http.post<PhotoDto>('/admin/photos/upload', form, {
     headers: { 'Content-Type': 'multipart/form-data' }
   })
