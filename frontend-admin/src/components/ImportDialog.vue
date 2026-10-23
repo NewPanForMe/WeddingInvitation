@@ -74,7 +74,7 @@ function close() {
   >
     <n-space vertical :size="14">
       <n-alert type="info" :show-icon="false">
-        <div>1. 文件需为 UTF-8 编码的 CSV；</div>
+        <div>1. 文件支持 UTF-8、GBK 或 GB18030 编码；</div>
         <div>2. 列顺序：姓名,称呼,电话,关系,桌号,可带人数（表头行以「姓名」开头会自动跳过）；</div>
         <div>3. 姓名为必填，其余列可为空。</div>
       </n-alert>
@@ -93,7 +93,7 @@ function close() {
             </n-icon>
             <div style="margin-top: 8px">点击或拖拽 CSV 文件到此处，选择后立即上传导入</div>
             <n-text depth="3" style="font-size: 12px">
-              支持 UTF-8 CSV，建议不超过 5000 行
+              支持 UTF-8、GBK、GB18030 CSV，建议不超过 5000 行
             </n-text>
           </div>
         </n-upload-dragger>

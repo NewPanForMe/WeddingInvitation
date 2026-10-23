@@ -21,6 +21,7 @@ import {
   type FormRules
 } from 'naive-ui'
 import PhotoUpload from '@/components/PhotoUpload.vue'
+import BackgroundMusicUpload from '@/components/BackgroundMusicUpload.vue'
 import { fetchConfig, updateConfig } from '@/api/config'
 import { formatDateTime, isoToTimestamp, timestampToIso } from '@/utils/format'
 import type { WeddingConfig } from '@/types'
@@ -40,6 +41,12 @@ const form = reactive<{
   address: string
   coverUrl: string
   coverShowInMoments: boolean
+  openingMessage: string
+  storyTitle: string
+  storyContent: string
+  closingMessage: string
+  backgroundMusicUrl: string
+  musicEnabled: boolean
   rsvpDeadline: number | null
 }>({
   groomName: '',
@@ -49,6 +56,12 @@ const form = reactive<{
   address: '',
   coverUrl: '',
   coverShowInMoments: false,
+  openingMessage: '',
+  storyTitle: '',
+  storyContent: '',
+  closingMessage: '',
+  backgroundMusicUrl: '',
+  musicEnabled: false,
   rsvpDeadline: null
 })
 
@@ -70,6 +83,12 @@ function applyConfig(cfg: WeddingConfig) {
   form.address = cfg.address ?? ''
   form.coverUrl = cfg.coverUrl ?? ''
   form.coverShowInMoments = cfg.coverShowInMoments ?? false
+  form.openingMessage = cfg.openingMessage ?? ''
+  form.storyTitle = cfg.storyTitle ?? ''
+  form.storyContent = cfg.storyContent ?? ''
+  form.closingMessage = cfg.closingMessage ?? ''
+  form.backgroundMusicUrl = cfg.backgroundMusicUrl ?? ''
+  form.musicEnabled = cfg.musicEnabled ?? false
   form.rsvpDeadline = isoToTimestamp(cfg.rsvpDeadline)
 }
 
@@ -101,6 +120,12 @@ async function handleSave() {
       address: form.address.trim(),
       coverUrl: form.coverUrl.trim(),
       coverShowInMoments: form.coverShowInMoments,
+      openingMessage: form.openingMessage.trim() || null,
+      storyTitle: form.storyTitle.trim() || null,
+      storyContent: form.storyContent.trim() || null,
+      closingMessage: form.closingMessage.trim() || null,
+      backgroundMusicUrl: form.backgroundMusicUrl.trim() || null,
+      musicEnabled: form.musicEnabled,
       rsvpDeadline: timestampToIso(form.rsvpDeadline)
     })
     applyConfig(saved)
@@ -115,6 +140,16 @@ async function handleSave() {
 function handleCoverUploaded(photo: { url: string }) {
   form.coverUrl = photo.url
   message.success('封面已上传，请记得保存配置')
+}
+
+function handleMusicUploaded(music: { url: string }) {
+  form.backgroundMusicUrl = music.url
+  form.musicEnabled = true
+}
+
+function clearBackgroundMusic() {
+  form.backgroundMusicUrl = ''
+  form.musicEnabled = false
 }
 
 onMounted(loadData)
@@ -216,6 +251,66 @@ onMounted(loadData)
               <n-switch v-model:value="form.coverShowInMoments">
                 <template #checked>在美好瞬间展示</template>
                 <template #unchecked>不在美好瞬间展示</template>
+              </n-switch>
+            </n-space>
+          </n-form-item>
+
+          <n-divider />
+
+          <n-form-item label="封面寄语">
+            <n-input
+              v-model:value="form.openingMessage"
+              placeholder="例如：始于心动，终于白首"
+              maxlength="120"
+              show-count
+              clearable
+            />
+          </n-form-item>
+
+          <n-form-item label="我们的故事标题">
+            <n-input
+              v-model:value="form.storyTitle"
+              placeholder="例如：关于我们"
+              maxlength="60"
+              show-count
+              clearable
+            />
+          </n-form-item>
+
+          <n-form-item label="我们的故事">
+            <n-input
+              v-model:value="form.storyContent"
+              type="textarea"
+              :autosize="{ minRows: 4, maxRows: 10 }"
+              placeholder="写下相遇、相知与决定携手同行的片段"
+              maxlength="2000"
+              show-count
+            />
+          </n-form-item>
+
+          <n-form-item label="落款寄语">
+            <n-input
+              v-model:value="form.closingMessage"
+              placeholder="例如：期待与您共同见证这一刻"
+              maxlength="120"
+              show-count
+              clearable
+            />
+          </n-form-item>
+
+          <n-form-item label="背景音乐">
+            <n-space vertical :size="10" style="width: 100%">
+              <n-space align="center" :size="12">
+                <BackgroundMusicUpload @uploaded="handleMusicUploaded" />
+                <n-text depth="3" class="text-muted">mp3 / m4a，最多 15MB</n-text>
+                <n-button v-if="form.backgroundMusicUrl" size="small" type="error" text @click="clearBackgroundMusic">
+                  移除音乐
+                </n-button>
+              </n-space>
+              <audio v-if="form.backgroundMusicUrl" :src="form.backgroundMusicUrl" controls preload="metadata" />
+              <n-switch v-model:value="form.musicEnabled" :disabled="!form.backgroundMusicUrl">
+                <template #checked>在请柬中提供背景音乐</template>
+                <template #unchecked>不提供背景音乐</template>
               </n-switch>
             </n-space>
           </n-form-item>

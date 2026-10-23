@@ -12,6 +12,9 @@
     <Compile Include="..\..\src\WeddingInvitation.Domain\Enums\*.cs" Link="Domain\Enums\%(Filename)%(Extension)" />
     <Compile Include="..\..\src\WeddingInvitation.Domain\Services\*.cs" Link="Domain\Services\%(Filename)%(Extension)" />
     <Compile Include="..\..\src\WeddingInvitation.Application\Common\PhotoUpload*.cs" Link="Application\Common\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\WeddingInvitation.Application\Common\CsvTextEncoding.cs" Link="Application\Common\CsvTextEncoding.cs" />
+    <Compile Include="..\..\src\WeddingInvitation.Application\Common\InvitationAtmospherePolicy.cs" Link="Application\Common\InvitationAtmospherePolicy.cs" />
+    <Compile Include="..\..\src\WeddingInvitation.Application\Common\BackgroundMusicUploadPolicy.cs" Link="Application\Common\BackgroundMusicUploadPolicy.cs" />
   </ItemGroup>
 
 </Project>

@@ -8,6 +8,7 @@ const props = defineProps<{
   brideName: string
   weddingTime?: string
   photos?: InvitePhoto[]
+  openingMessage?: string | null
 }>()
 
 /** 封面缺图时退化为渐变色块 */
@@ -49,6 +50,7 @@ function scrollToRsvp(): void {
         <span>{{ brideName }}</span>
       </h1>
       <p v-if="dateText" class="cover__date">{{ dateText }}</p>
+      <p v-if="openingMessage" class="cover__message">{{ openingMessage }}</p>
       <button type="button" class="cover__cta" @click="scrollToRsvp">诚邀您的到来</button>
     </div>
   </header>
@@ -128,6 +130,16 @@ function scrollToRsvp(): void {
   opacity: 0.92;
 }
 
+.cover__message {
+  margin: -4px auto 16px;
+  max-width: 20em;
+  font-family: var(--wedding-font-display);
+  font-size: 15px;
+  line-height: 1.7;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 12px rgba(74, 58, 48, 0.35);
+}
+
 .cover__cta {
   padding: 8px 22px;
   border: 1px solid rgba(255, 253, 250, 0.7);
@@ -166,6 +178,10 @@ function scrollToRsvp(): void {
     margin-bottom: 20px;
     font-size: 14px;
     letter-spacing: 2px;
+  }
+
+  .cover__message {
+    margin-bottom: 20px;
   }
 }
 </style>

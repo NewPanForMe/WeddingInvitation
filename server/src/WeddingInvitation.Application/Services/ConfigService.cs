@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WeddingInvitation.Application.Abstractions;
+using WeddingInvitation.Application.Common;
 using WeddingInvitation.Application.DTOs;
 using WeddingInvitation.Domain.Entities;
 using WeddingInvitation.Domain.Enums;
@@ -41,6 +42,14 @@ public class ConfigService
         config.Address = Normalize(request.Address);
         config.CoverUrl = Normalize(request.CoverUrl);
         config.CoverShowInMoments = request.CoverShowInMoments;
+        config.OpeningMessage = InvitationAtmospherePolicy.NormalizeText(request.OpeningMessage, 120);
+        config.StoryTitle = InvitationAtmospherePolicy.NormalizeText(request.StoryTitle, 60);
+        config.StoryContent = InvitationAtmospherePolicy.NormalizeText(request.StoryContent, 2000);
+        config.ClosingMessage = InvitationAtmospherePolicy.NormalizeText(request.ClosingMessage, 120);
+        config.BackgroundMusicUrl = InvitationAtmospherePolicy.NormalizeText(request.BackgroundMusicUrl, 512);
+        config.MusicEnabled = InvitationAtmospherePolicy.CanShowBackgroundMusic(
+            request.MusicEnabled,
+            config.BackgroundMusicUrl);
         config.RsvpDeadline = ToUtc(request.RsvpDeadline);
         config.UpdatedAt = DateTimeOffset.UtcNow;
 

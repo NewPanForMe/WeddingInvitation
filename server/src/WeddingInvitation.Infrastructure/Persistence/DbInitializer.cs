@@ -27,7 +27,7 @@ public static class DbInitializer
                 return;
             }
 
-            await EnsurePhotoSchemaAsync(db, cancellationToken);
+            await EnsureSchemaAsync(db, cancellationToken);
 
             if (!await db.InvitationConfigs.AnyAsync(cancellationToken))
             {
@@ -68,14 +68,32 @@ public static class DbInitializer
         }
     }
 
-    /// <summary>兼容照片分类功能上线前创建的数据库结构。</summary>
-    private static async Task EnsurePhotoSchemaAsync(AppDbContext db, CancellationToken cancellationToken)
+    /// <summary>兼容功能上线前创建的数据库结构。</summary>
+    private static async Task EnsureSchemaAsync(AppDbContext db, CancellationToken cancellationToken)
     {
         await db.Database.ExecuteSqlRawAsync(
             "ALTER TABLE photos ADD COLUMN IF NOT EXISTS photo_type text NOT NULL DEFAULT 'moment';",
             cancellationToken);
         await db.Database.ExecuteSqlRawAsync(
             "ALTER TABLE invitation_config ADD COLUMN IF NOT EXISTS cover_show_in_moments boolean NOT NULL DEFAULT false;",
+            cancellationToken);
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE invitation_config ADD COLUMN IF NOT EXISTS opening_message text NULL;",
+            cancellationToken);
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE invitation_config ADD COLUMN IF NOT EXISTS story_title text NULL;",
+            cancellationToken);
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE invitation_config ADD COLUMN IF NOT EXISTS story_content text NULL;",
+            cancellationToken);
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE invitation_config ADD COLUMN IF NOT EXISTS closing_message text NULL;",
+            cancellationToken);
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE invitation_config ADD COLUMN IF NOT EXISTS background_music_url text NULL;",
+            cancellationToken);
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE invitation_config ADD COLUMN IF NOT EXISTS music_enabled boolean NOT NULL DEFAULT false;",
             cancellationToken);
         await db.Database.ExecuteSqlRawAsync(
             """

@@ -7,6 +7,8 @@ import WeddingInfo from '@/components/WeddingInfo.vue'
 import PhotoSwipe from '@/components/PhotoSwipe.vue'
 import MapNav from '@/components/MapNav.vue'
 import RsvpForm from '@/components/RsvpForm.vue'
+import LoveStory from '@/components/LoveStory.vue'
+import BackgroundMusic from '@/components/BackgroundMusic.vue'
 
 const route = useRoute()
 const store = useInviteStore()
@@ -81,12 +83,18 @@ const isError = computed(() => store.loadState === 'error')
 
     <!-- 正常内容 -->
     <template v-else-if="store.hasInvite && store.config && store.guest">
+      <BackgroundMusic
+        :src="store.config.backgroundMusicUrl"
+        :enabled="store.config.musicEnabled"
+      />
+
       <CoverSection
         :cover-url="store.config.coverUrl"
         :groom-name="store.config.groomName"
         :bride-name="store.config.brideName"
         :wedding-time="store.config.weddingTime"
         :photos="store.photos"
+        :opening-message="store.config.openingMessage"
       />
 
       <WeddingInfo
@@ -94,6 +102,11 @@ const isError = computed(() => store.loadState === 'error')
         :bride-name="store.config.brideName"
         :wedding-time="store.config.weddingTime"
         :salutation="store.guest.salutation"
+      />
+
+      <LoveStory
+        :title="store.config.storyTitle"
+        :content="store.config.storyContent"
       />
 
       <MapNav :venue="store.config.venue" :address="store.config.address" />
@@ -111,7 +124,9 @@ const isError = computed(() => store.loadState === 'error')
       <RsvpForm />
 
       <footer class="invite__footer">
-        <p class="invite__footer-main">期待与您共同见证这一刻</p>
+        <p class="invite__footer-main">
+          {{ store.config.closingMessage || '期待与您共同见证这一刻' }}
+        </p>
         <p class="invite__footer-sub">
           {{ store.config.groomName }} &amp; {{ store.config.brideName }} 敬邀
         </p>

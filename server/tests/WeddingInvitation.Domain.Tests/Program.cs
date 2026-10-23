@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text;
 using WeddingInvitation.Domain.Entities;
 
 var photoVisibilityType = typeof(Photo).Assembly.GetType("WeddingInvitation.Domain.Services.PhotoVisibility");
@@ -29,6 +30,43 @@ Assert(
 Assert(
     InvokeSize(exceedsMaximumSize!, "Moment", 25L * 1024 * 1024, 10),
     "A moment image over the configured size limit must still be rejected.");
+
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+var csvTextEncodingType = typeof(Photo).Assembly.GetType("WeddingInvitation.Application.Common.CsvTextEncoding");
+Assert(csvTextEncodingType is not null, "CsvTextEncoding must decode CSV files before import.");
+
+var decodeCsv = csvTextEncodingType!.GetMethod("Decode", BindingFlags.Public | BindingFlags.Static);
+Assert(decodeCsv is not null, "CsvTextEncoding.Decode must be public and static.");
+
+var gb18030Csv = Encoding.GetEncoding("GB18030").GetBytes("姓名,称呼\r\n张三,李先生\r\n");
+var decodedGb18030 = decodeCsv!.Invoke(null, [gb18030Csv]) as string;
+Assert(decodedGb18030 == "姓名,称呼\r\n张三,李先生\r\n", "GB18030 CSV must preserve Chinese guest data.");
+
+var atmospherePolicyType = typeof(Photo).Assembly.GetType("WeddingInvitation.Application.Common.InvitationAtmospherePolicy");
+Assert(atmospherePolicyType is not null, "InvitationAtmospherePolicy must provide presentation rules for romantic invitation content.");
+
+var normalizeText = atmospherePolicyType!.GetMethod("NormalizeText", BindingFlags.Public | BindingFlags.Static);
+Assert(normalizeText is not null, "InvitationAtmospherePolicy.NormalizeText must be public and static.");
+Assert(
+    normalizeText!.Invoke(null, ["  与你携手，共赴余生  ", 60]) as string == "与你携手，共赴余生",
+    "Invitation text must trim surrounding whitespace before it is shown to guests.");
+
+var canShowMusic = atmospherePolicyType.GetMethod("CanShowBackgroundMusic", BindingFlags.Public | BindingFlags.Static);
+Assert(canShowMusic is not null, "InvitationAtmospherePolicy.CanShowBackgroundMusic must be public and static.");
+Assert(
+    canShowMusic!.Invoke(null, [true, "/Wedding/upload/music/our-song.mp3"]) is true,
+    "An enabled background-music URL must be available to guests.");
+Assert(
+    canShowMusic.Invoke(null, [false, "/Wedding/upload/music/our-song.mp3"]) is false,
+    "Background music must remain hidden when the administrator turns it off.");
+
+var backgroundMusicUploadPolicyType = typeof(Photo).Assembly.GetType("WeddingInvitation.Application.Common.BackgroundMusicUploadPolicy");
+Assert(backgroundMusicUploadPolicyType is not null, "BackgroundMusicUploadPolicy must define allowed music files.");
+
+var isAllowedMusicFile = backgroundMusicUploadPolicyType!.GetMethod("IsAllowedFileName", BindingFlags.Public | BindingFlags.Static);
+Assert(isAllowedMusicFile is not null, "BackgroundMusicUploadPolicy.IsAllowedFileName must be public and static.");
+Assert(isAllowedMusicFile!.Invoke(null, ["our-song.m4a"]) is true, "M4A music files must be accepted.");
+Assert(isAllowedMusicFile.Invoke(null, ["our-song.wav"]) is false, "Unsupported music formats must be rejected.");
 
 Console.WriteLine("PhotoVisibility rules passed.");
 

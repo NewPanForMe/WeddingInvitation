@@ -54,7 +54,7 @@ public class GuestsController : ControllerBase
         return Ok(new OperationResult(true, "删除成功"));
     }
 
-    /// <summary>CSV 批量导入：姓名,称呼,电话,关系,桌号,可带人数（UTF-8，表头可省略）。</summary>
+    /// <summary>CSV 批量导入：姓名,称呼,电话,关系,桌号,可带人数（支持 UTF-8、GBK、GB18030，表头可省略）。</summary>
     [HttpPost("import")]
     public async Task<ActionResult<ImportResultDto>> ImportAsync(
         IFormFile? file,

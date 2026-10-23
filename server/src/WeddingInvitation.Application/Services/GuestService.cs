@@ -129,8 +129,9 @@ public class GuestService
     /// </summary>
     public async Task<ImportResultDto> ImportAsync(Stream stream, CancellationToken cancellationToken = default)
     {
-        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-        var text = await reader.ReadToEndAsync(cancellationToken);
+        using var buffer = new MemoryStream();
+        await stream.CopyToAsync(buffer, cancellationToken);
+        var text = CsvTextEncoding.Decode(buffer.ToArray());
 
         var errors = new List<string>();
         var imported = 0;

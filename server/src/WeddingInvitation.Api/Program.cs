@@ -40,6 +40,7 @@ builder.Logging.AddProvider(new FileLoggerProvider(
 // ---------------------------------------------------------------------------
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.Configure<UploadOptions>(builder.Configuration.GetSection(UploadOptions.SectionName));
+builder.Services.Configure<BackgroundMusicUploadOptions>(builder.Configuration.GetSection(BackgroundMusicUploadOptions.SectionName));
 builder.Services.PostConfigure<UploadOptions>(options =>
 {
     options.RootPath = ResolveUploadRoot(builder.Environment.ContentRootPath, options.RootPath);
@@ -58,6 +59,7 @@ builder.Services.AddScoped<InviteService>();
 builder.Services.AddScoped<RsvpService>();
 builder.Services.AddScoped<GuestService>();
 builder.Services.AddScoped<PhotoService>();
+builder.Services.AddScoped<BackgroundMusicService>();
 builder.Services.AddScoped<ConfigService>();
 builder.Services.AddScoped<StatisticsService>();
 builder.Services.AddMemoryCache();

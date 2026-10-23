@@ -1,3 +1,4 @@
+using WeddingInvitation.Application.Common;
 using WeddingInvitation.Application.DTOs;
 using WeddingInvitation.Domain.Entities;
 using WeddingInvitation.Domain.Enums;
@@ -15,6 +16,12 @@ internal static class Mapping
         config?.Address,
         config?.CoverUrl,
         config?.CoverShowInMoments ?? false,
+        config?.OpeningMessage,
+        config?.StoryTitle,
+        config?.StoryContent,
+        config?.ClosingMessage,
+        config?.BackgroundMusicUrl,
+        InvitationAtmospherePolicy.CanShowBackgroundMusic(config?.MusicEnabled ?? false, config?.BackgroundMusicUrl),
         config?.RsvpDeadline);
 
     public static PhotoDto ToPhotoDto(Photo photo) => new(

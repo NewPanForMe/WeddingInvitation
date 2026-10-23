@@ -12,6 +12,12 @@ public record InvitationConfigDto(
     string? Address,
     string? CoverUrl,
     bool CoverShowInMoments,
+    string? OpeningMessage,
+    string? StoryTitle,
+    string? StoryContent,
+    string? ClosingMessage,
+    string? BackgroundMusicUrl,
+    bool MusicEnabled,
     DateTimeOffset? RsvpDeadline);
 
 public record PhotoDto(

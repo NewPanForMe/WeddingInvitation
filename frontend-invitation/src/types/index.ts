@@ -38,6 +38,18 @@ export interface InviteConfig {
   coverUrl: string
   /** 是否在美好瞬间中展示当前封面图 */
   coverShowInMoments: boolean
+  /** 封面简短寄语 */
+  openingMessage: string | null
+  /** 恋爱故事标题 */
+  storyTitle: string | null
+  /** 恋爱故事正文 */
+  storyContent: string | null
+  /** 页面底部落款寄语 */
+  closingMessage: string | null
+  /** 背景音乐公开地址 */
+  backgroundMusicUrl: string | null
+  /** 是否在请柬中展示音乐控件 */
+  musicEnabled: boolean
   /** 回复截止时间（ISO 8601 带时区） */
   rsvpDeadline: string
 }

@@ -36,6 +36,7 @@
   --wedding-font: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei', 'Segoe UI', 'Noto Sans CJK SC', 'Source Han Sans SC', Roboto, Helvetica,
     Arial, sans-serif;
+  --wedding-font-display: 'Songti SC', 'STSong', 'Noto Serif SC', 'Source Han Serif SC', serif;
 
   /* ---------- 覆盖 Vant 主题变量，使组件跟随暖色调 ---------- */
   --van-primary-color: #b4886b;

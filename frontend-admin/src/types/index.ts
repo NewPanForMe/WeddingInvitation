@@ -81,10 +81,20 @@ export interface WeddingConfig {
   address: string
   coverUrl: string
   coverShowInMoments: boolean
+  openingMessage: string | null
+  storyTitle: string | null
+  storyContent: string | null
+  closingMessage: string | null
+  backgroundMusicUrl: string | null
+  musicEnabled: boolean
   rsvpDeadline: string
 }
 
 export type WeddingConfigPayload = WeddingConfig
+
+export interface BackgroundMusicUploadResult {
+  url: string
+}
 
 export interface StatisticsDto {
   totalGuests: number

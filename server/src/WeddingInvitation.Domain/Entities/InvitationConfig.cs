@@ -22,6 +22,24 @@ public class InvitationConfig
     /// <summary>是否将当前封面图同时展示在“美好瞬间”。</summary>
     public bool CoverShowInMoments { get; set; }
 
+    /// <summary>封面上的简短寄语。</summary>
+    public string? OpeningMessage { get; set; }
+
+    /// <summary>恋爱故事标题。</summary>
+    public string? StoryTitle { get; set; }
+
+    /// <summary>恋爱故事正文。</summary>
+    public string? StoryContent { get; set; }
+
+    /// <summary>页面底部落款寄语。</summary>
+    public string? ClosingMessage { get; set; }
+
+    /// <summary>背景音乐公开访问地址。</summary>
+    public string? BackgroundMusicUrl { get; set; }
+
+    /// <summary>是否在请柬中提供背景音乐。</summary>
+    public bool MusicEnabled { get; set; }
+
     public DateTimeOffset? RsvpDeadline { get; set; }
 
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;

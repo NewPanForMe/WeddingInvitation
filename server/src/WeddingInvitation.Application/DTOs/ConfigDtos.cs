@@ -9,7 +9,16 @@ public record InvitationConfigUpdateRequest(
     string? Address,
     string? CoverUrl,
     bool CoverShowInMoments,
+    string? OpeningMessage,
+    string? StoryTitle,
+    string? StoryContent,
+    string? ClosingMessage,
+    string? BackgroundMusicUrl,
+    bool MusicEnabled,
     DateTimeOffset? RsvpDeadline);
+
+/// <summary>背景音乐上传后的公开地址。</summary>
+public record BackgroundMusicUploadDto(string Url);
 
 /// <summary>后台更新照片信息。</summary>
 public record PhotoUpdateRequest(string? Title, int SortOrder, bool Enabled);
