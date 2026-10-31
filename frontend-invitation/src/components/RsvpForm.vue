@@ -73,8 +73,8 @@ async function onSubmit(): Promise<void> {
 </script>
 
 <template>
-  <section id="rsvp" class="rsvp card">
-    <h2 class="section-title">出席回复</h2>
+  <section id="rsvp" class="rsvp">
+    <h3 class="section-title">出席回复</h3>
 
     <!-- 已截止提示 -->
     <van-notice-bar

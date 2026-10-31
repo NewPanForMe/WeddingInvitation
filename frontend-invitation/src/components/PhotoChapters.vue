@@ -4,12 +4,16 @@ import { showImagePreview } from 'vant'
 import type { InvitePhoto } from '@/types'
 import DecorativeMotes from './DecorativeMotes.vue'
 import { getAdjacentChapterIndex, getChapterKeyboardStep } from './photo-chapter-navigation'
+import { getPhotoCopyMode } from './invitation-presentation'
 
 const props = defineProps<{
   photos: InvitePhoto[]
 }>()
 
 const gallery = computed(() => props.photos)
+const photoCopyModes = computed(() =>
+  gallery.value.map((photo) => getPhotoCopyMode(photo.title, photo.description))
+)
 const storyRoot = ref<HTMLElement | null>(null)
 const activeIndex = ref(0)
 const visibleIndices = ref<Set<number>>(new Set([0]))
@@ -125,64 +129,71 @@ onBeforeUnmount(() => {
       :class="{
         'is-visible': visibleIndices.has(index),
         'is-active': activeIndex === index,
-        'has-image-error': failedIndices.has(index)
+        'has-image-error': failedIndices.has(index),
+        [`photo-chapter--${photoCopyModes[index]}`]: true
       }"
       :aria-label="`美好瞬间，第 ${index + 1} 张，共 ${gallery.length} 张`"
     >
+      <div class="photo-chapter__stage">
+        <div
+          class="photo-chapter__backdrop"
+          :style="failedIndices.has(index) ? undefined : { backgroundImage: `url(${JSON.stringify(photo.url)})` }"
+          aria-hidden="true"
+        />
+        <DecorativeMotes :count="6" tone="dark" />
+
+        <p v-if="gallery.length > 1" class="photo-chapter__progress" aria-hidden="true">
+          {{ String(index + 1).padStart(2, '0') }} / {{ String(gallery.length).padStart(2, '0') }}
+        </p>
+
+        <button
+          type="button"
+          class="photo-chapter__media"
+          :aria-label="`全屏查看${photo.title ? `：${photo.title}` : `第 ${index + 1} 张婚礼照片`}`"
+          @click="preview(index)"
+        >
+          <span class="photo-chapter__visual">
+            <van-image
+              :src="photo.url"
+              fit="contain"
+              :alt="photo.title || `第 ${index + 1} 张婚礼照片`"
+              class="photo-chapter__image"
+              @error="markImageFailed(index)"
+            >
+              <template #loading>
+                <van-loading type="spinner" color="#fffaf4" size="24" />
+              </template>
+              <template #error>
+                <span class="photo-chapter__error">
+                  <span aria-hidden="true">◇</span>
+                  <span>照片暂时无法加载</span>
+                </span>
+              </template>
+            </van-image>
+          </span>
+        </button>
+
+        <p v-if="index === 0 && gallery.length > 1" class="photo-chapter__hint" aria-hidden="true">
+          <span>向上滑动</span>
+          <span class="photo-chapter__hint-line" />
+        </p>
+      </div>
+
       <div
-        class="photo-chapter__backdrop"
-        :style="failedIndices.has(index) ? undefined : { backgroundImage: `url(${JSON.stringify(photo.url)})` }"
-        aria-hidden="true"
-      />
-      <DecorativeMotes :count="6" tone="dark" />
-
-      <p v-if="gallery.length > 1" class="photo-chapter__progress" aria-hidden="true">
-        {{ String(index + 1).padStart(2, '0') }} / {{ String(gallery.length).padStart(2, '0') }}
-      </p>
-
-      <button
-        type="button"
-        class="photo-chapter__media"
-        :aria-label="`全屏查看${photo.title ? `：${photo.title}` : `第 ${index + 1} 张婚礼照片`}`"
-        @click="preview(index)"
-      >
-        <span class="photo-chapter__visual">
-          <van-image
-            :src="photo.url"
-            fit="contain"
-            :alt="photo.title || `第 ${index + 1} 张婚礼照片`"
-            class="photo-chapter__image"
-            @error="markImageFailed(index)"
-          >
-            <template #loading>
-              <van-loading type="spinner" color="#fffaf4" size="24" />
-            </template>
-            <template #error>
-              <span class="photo-chapter__error">
-                <span aria-hidden="true">◇</span>
-                <span>照片暂时无法加载</span>
-              </span>
-            </template>
-          </van-image>
-        </span>
-      </button>
-
-      <div
-        v-if="index === 0 || photo.title || photo.description"
+        v-if="photoCopyModes[index] !== 'none'"
         class="photo-chapter__copy"
         role="region"
         :aria-label="`第 ${index + 1} 张照片文字`"
-        :tabindex="photo.description ? 0 : undefined"
+        :tabindex="photoCopyModes[index] === 'description' ? 0 : undefined"
       >
-        <p v-if="index === 0" class="photo-chapter__eyebrow">美好瞬间</p>
-        <h2 v-if="photo.title" class="photo-chapter__title">{{ photo.title }}</h2>
-        <p v-if="photo.description" class="photo-chapter__description">{{ photo.description }}</p>
+        <div class="photo-chapter__copy-inner">
+          <p v-if="index === 0" class="photo-chapter__eyebrow">美好瞬间</p>
+          <h3 v-if="photo.title?.trim()" class="photo-chapter__title">{{ photo.title.trim() }}</h3>
+          <p v-if="photo.description?.trim()" class="photo-chapter__description">
+            {{ photo.description.trim() }}
+          </p>
+        </div>
       </div>
-
-      <p v-if="index === 0 && gallery.length > 1" class="photo-chapter__hint" aria-hidden="true">
-        <span>向上滑动</span>
-        <span class="photo-chapter__hint-line" />
-      </p>
     </article>
 
     <div class="photo-story__transition photo-story__transition--out" aria-hidden="true" />
@@ -192,8 +203,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .photo-story {
   margin-top: var(--space-4);
-  color: var(--wedding-text-invert);
-  background: var(--wedding-cocoa);
+  background: var(--wedding-bg);
 }
 
 .photo-story__transition {
@@ -205,22 +215,37 @@ onBeforeUnmount(() => {
 }
 
 .photo-story__transition--out {
-  background: linear-gradient(180deg, var(--wedding-cocoa), #8f6259 52%, var(--wedding-bg));
+  background: linear-gradient(180deg, var(--wedding-surface), #d6b7a5 52%, var(--wedding-bg));
 }
 
 .photo-chapter {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   min-height: 100vh;
   min-height: 100svh;
+  overflow: hidden;
+  color: var(--wedding-text);
+  background: var(--wedding-surface);
+}
+
+.photo-chapter__stage {
+  position: relative;
+  display: grid;
+  flex: 1 0 auto;
+  place-items: center;
+  min-height: clamp(430px, 72svh, 700px);
   padding: calc(var(--space-8) + env(safe-area-inset-top, 0px)) var(--wedding-page-x)
-    calc(var(--space-10) + env(safe-area-inset-bottom, 0px));
+    var(--space-8);
   overflow: hidden;
   isolation: isolate;
+  color: var(--wedding-text-invert);
   background: linear-gradient(155deg, var(--wedding-cocoa-soft), var(--wedding-cocoa) 68%);
+}
+
+.photo-chapter--none .photo-chapter__stage {
+  min-height: 100vh;
+  min-height: 100svh;
 }
 
 .photo-chapter__backdrop {
@@ -235,7 +260,7 @@ onBeforeUnmount(() => {
   transition: opacity 700ms ease, transform 900ms cubic-bezier(0.2, 0.72, 0.22, 1);
 }
 
-.photo-chapter::after {
+.photo-chapter__stage::after {
   position: absolute;
   z-index: -1;
   inset: 0;
@@ -249,7 +274,7 @@ onBeforeUnmount(() => {
 .photo-chapter__media {
   position: relative;
   z-index: 2;
-  width: min(calc(100% - 16px), clamp(200px, calc((100svh - 250px) * 0.8), 360px));
+  width: min(calc(100% - 16px), clamp(200px, calc((72svh - 150px) * 0.8), 360px));
   aspect-ratio: 4 / 5;
   padding: 7px;
   overflow: hidden;
@@ -321,29 +346,33 @@ onBeforeUnmount(() => {
 
 .photo-chapter__copy {
   position: relative;
-  z-index: 3;
-  width: min(calc(100% - 4px), 376px);
-  max-height: min(29svh, 224px);
-  margin-top: -22px;
-  padding: var(--space-4) var(--space-5);
+  width: 100%;
+  max-height: min(30svh, 236px);
+  padding: var(--space-5) var(--wedding-page-x) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
-  border: 1px solid rgba(234, 215, 181, 0.28);
-  border-radius: 18px;
-  background: rgba(47, 33, 30, 0.78);
-  box-shadow: 0 16px 30px rgba(20, 12, 10, 0.28);
-  backdrop-filter: blur(18px) saturate(110%);
+  border-top: 1px solid var(--wedding-border);
+  background: var(--wedding-surface);
   opacity: 0;
-  transform: translateY(22px);
+  transform: translateY(16px);
   transition: opacity 500ms ease 120ms, transform 620ms cubic-bezier(0.2, 0.72, 0.22, 1) 120ms;
+}
+
+.photo-chapter--title .photo-chapter__copy {
+  padding-block: var(--space-4) calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+}
+
+.photo-chapter__copy-inner {
+  width: min(100%, 376px);
+  margin-inline: auto;
 }
 
 .photo-chapter__eyebrow {
   margin: 0 0 var(--space-1);
-  color: var(--wedding-gold-soft);
+  color: var(--wedding-primary-dark);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.24em;
@@ -351,6 +380,7 @@ onBeforeUnmount(() => {
 
 .photo-chapter__title {
   margin: 0;
+  color: var(--wedding-primary-deep);
   font-family: var(--wedding-font-display);
   font-size: clamp(21px, 6vw, 28px);
   font-weight: 600;
@@ -360,7 +390,7 @@ onBeforeUnmount(() => {
 
 .photo-chapter__description {
   margin: var(--space-2) 0 0;
-  color: rgba(255, 250, 244, 0.94);
+  color: var(--wedding-text-sub);
   font-size: clamp(14px, 3.6vw, 16px);
   line-height: 1.75;
   letter-spacing: 0.015em;
@@ -411,26 +441,27 @@ onBeforeUnmount(() => {
   transform: none;
 }
 
-.photo-chapter.has-image-error .photo-chapter__media {
-  cursor: default;
-}
-
 @keyframes photo-frame-shimmer {
   to { transform: translateX(120%); }
 }
 
 @media (max-height: 620px) and (orientation: portrait) {
-  .photo-chapter {
+  .photo-chapter__stage {
+    min-height: 72svh;
     padding-block: calc(var(--space-4) + env(safe-area-inset-top, 0px))
-      calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+      var(--space-4);
+  }
+
+  .photo-chapter--none .photo-chapter__stage {
+    min-height: 100svh;
   }
 
   .photo-chapter__media {
-    width: min(calc(100% - 32px), calc((100svh - 180px) * 0.8));
+    width: min(calc(100% - 32px), calc((72svh - 100px) * 0.8));
   }
 
   .photo-chapter__copy {
-    max-height: min(27svh, 150px);
+    max-height: 28svh;
     padding-block: var(--space-3);
   }
 
@@ -443,15 +474,18 @@ onBeforeUnmount(() => {
   .photo-chapter {
     display: grid;
     grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-    align-content: center;
-    padding: calc(var(--space-4) + env(safe-area-inset-top, 0px)) var(--space-4)
+    min-height: 100svh;
+    background: var(--wedding-cocoa);
+  }
+
+  .photo-chapter__stage {
+    grid-column: 1;
+    min-height: 100svh;
+    padding: calc(var(--space-4) + env(safe-area-inset-top, 0px)) var(--space-3)
       calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
   }
 
   .photo-chapter__media {
-    grid-column: 1;
-    grid-row: 1;
-    justify-self: end;
     width: min(100%, calc((100svh - 96px) * 0.8));
     max-width: 190px;
   }
@@ -459,16 +493,13 @@ onBeforeUnmount(() => {
   .photo-chapter__copy {
     grid-column: 2;
     grid-row: 1;
-    align-self: center;
-    width: calc(100% + 12px);
-    max-height: calc(100svh - 80px);
-    margin-top: 0;
-    margin-left: -12px;
+    align-self: stretch;
+    max-height: 100svh;
+    padding: var(--space-5) var(--space-4);
   }
 
-  .photo-chapter:not(:has(.photo-chapter__copy)) .photo-chapter__media {
+  .photo-chapter--none .photo-chapter__stage {
     grid-column: 1 / -1;
-    justify-self: center;
   }
 
   .photo-chapter__hint {
@@ -495,24 +526,18 @@ onBeforeUnmount(() => {
     display: none;
   }
 
-  .photo-chapter__copy {
-    background: var(--wedding-cocoa);
-    backdrop-filter: none;
-  }
 }
 
 @media (prefers-contrast: more) {
-  .photo-chapter__media,
-  .photo-chapter__copy {
+  .photo-chapter__media {
     border: 2px solid var(--wedding-text-invert);
   }
 
   .photo-chapter__copy {
-    background: #1f1512;
-    backdrop-filter: none;
+    border-top: 2px solid var(--wedding-text);
+    background: var(--wedding-surface);
   }
 
-  .photo-chapter__description,
   .photo-chapter__progress,
   .photo-chapter__hint {
     color: var(--wedding-text-invert);

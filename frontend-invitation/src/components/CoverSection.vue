@@ -9,7 +9,6 @@ const props = defineProps<{
   brideName: string
   weddingTime?: string
   photos?: InvitePhoto[]
-  openingMessage?: string | null
 }>()
 
 const firstPhoto = computed(() => props.photos?.[0]?.url ?? '')
@@ -60,7 +59,6 @@ function scrollToRsvp(): void {
             <span>{{ brideName }}</span>
           </h1>
           <p v-if="dateText" class="cover__date">{{ dateText }}</p>
-          <p v-if="openingMessage" class="cover__message">{{ openingMessage }}</p>
           <button type="button" class="cover__cta" @click="scrollToRsvp">诚邀您的到来</button>
         </div>
       </div>
@@ -204,16 +202,6 @@ function scrollToRsvp(): void {
   margin: 0 0 var(--space-3);
   font-size: 13px;
   letter-spacing: 0.14em;
-}
-
-.cover__message {
-  max-width: 20em;
-  margin: calc(var(--space-1) * -1) auto var(--space-3);
-  font-family: var(--wedding-font-display);
-  font-size: 14px;
-  line-height: 1.7;
-  letter-spacing: 0.06em;
-  text-shadow: 0 2px 12px rgba(20, 12, 10, 0.48);
 }
 
 .cover__cta {

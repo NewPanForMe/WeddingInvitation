@@ -9,6 +9,9 @@ import MapNav from '@/components/MapNav.vue'
 import RsvpForm from '@/components/RsvpForm.vue'
 import LoveStory from '@/components/LoveStory.vue'
 import BackgroundMusic from '@/components/BackgroundMusic.vue'
+import EditorialSectionHeader from '@/components/EditorialSectionHeader.vue'
+import InvitationStoryIntro from '@/components/InvitationStoryIntro.vue'
+import { shouldShowStorySection } from '@/components/invitation-presentation'
 
 const route = useRoute()
 const store = useInviteStore()
@@ -44,6 +47,13 @@ watch(
 
 const isLoading = computed(() => store.loadState === 'loading' || store.loadState === 'idle')
 const isError = computed(() => store.loadState === 'error')
+const showStorySection = computed(() =>
+  shouldShowStorySection(
+    store.config?.openingMessage,
+    store.config?.storyContent,
+    store.photos.length
+  )
+)
 </script>
 
 <template>
@@ -94,34 +104,47 @@ const isError = computed(() => store.loadState === 'error')
         :bride-name="store.config.brideName"
         :wedding-time="store.config.weddingTime"
         :photos="store.photos"
-        :opening-message="store.config.openingMessage"
       />
 
-      <WeddingInfo
-        :groom-name="store.config.groomName"
-        :bride-name="store.config.brideName"
-        :wedding-time="store.config.weddingTime"
-        :salutation="store.guest.salutation"
-      />
+      <section v-if="showStorySection" class="invite-story">
+        <EditorialSectionHeader index="01" eyebrow="OUR STORY" title="我们的故事" />
 
-      <LoveStory
-        :title="store.config.storyTitle"
-        :content="store.config.storyContent"
-      />
+        <InvitationStoryIntro
+          :salutation="store.guest.salutation"
+          :message="store.config.openingMessage"
+        />
 
-      <MapNav :venue="store.config.venue" :address="store.config.address" />
+        <LoveStory
+          :title="store.config.storyTitle"
+          :content="store.config.storyContent"
+        />
 
-      <PhotoChapters :photos="store.photos" />
-
-      <section class="table-card card card--soft">
-        <h2 class="section-title">您的席位</h2>
-        <p class="table-card__no">{{ store.guest.tableNo || '待安排' }}</p>
-        <p class="table-card__desc">
-          {{ store.guest.salutation || store.guest.name }}，我们已为您预留座位
-        </p>
+        <PhotoChapters :photos="store.photos" />
       </section>
 
-      <RsvpForm />
+      <section class="wedding-details">
+        <EditorialSectionHeader index="02" eyebrow="WEDDING DAY" title="婚宴信息" />
+
+        <WeddingInfo
+          :groom-name="store.config.groomName"
+          :bride-name="store.config.brideName"
+          :wedding-time="store.config.weddingTime"
+        />
+
+        <MapNav :venue="store.config.venue" :address="store.config.address" />
+
+        <div class="response-card">
+          <section class="table-card">
+            <h3 class="section-title">您的席位</h3>
+            <p class="table-card__no">{{ store.guest.tableNo || '待安排' }}</p>
+            <p class="table-card__desc">
+              {{ store.guest.name }}，我们已为您预留座位
+            </p>
+          </section>
+
+          <RsvpForm />
+        </div>
+      </section>
 
       <footer class="invite__footer">
         <p class="invite__footer-main">
@@ -143,6 +166,20 @@ const isError = computed(() => store.loadState === 'error')
 <style scoped>
 .invite {
   padding-bottom: calc(20px + var(--wedding-safe-bottom));
+}
+
+.invite-story,
+.wedding-details {
+  position: relative;
+}
+
+.response-card {
+  margin: var(--space-8) var(--wedding-page-x);
+  padding: var(--space-6) var(--space-5);
+  border: 1px solid var(--wedding-border);
+  border-radius: var(--wedding-radius);
+  background: var(--wedding-surface);
+  box-shadow: var(--wedding-shadow-soft);
 }
 
 .invite__skeleton-cover {
@@ -173,6 +210,8 @@ const isError = computed(() => store.loadState === 'error')
 }
 
 .table-card {
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--wedding-border);
   text-align: center;
 }
 

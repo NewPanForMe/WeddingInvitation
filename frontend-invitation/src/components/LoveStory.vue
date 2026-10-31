@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useRevealOnce } from '@/composables/useRevealOnce'
 
 const props = defineProps<{
   title?: string | null
@@ -8,12 +9,20 @@ const props = defineProps<{
 
 const visible = computed(() => Boolean(props.content?.trim()))
 const heading = computed(() => props.title?.trim() || '我们的故事')
+const root = ref<HTMLElement | null>(null)
+const revealed = useRevealOnce(root)
 </script>
 
 <template>
-  <section v-if="visible" class="love-story" aria-labelledby="love-story-title">
+  <section
+    v-if="visible"
+    ref="root"
+    class="love-story reveal-once"
+    :class="{ 'is-visible': revealed }"
+    aria-labelledby="love-story-title"
+  >
     <p class="love-story__eyebrow">OUR STORY</p>
-    <h2 id="love-story-title" class="love-story__title">{{ heading }}</h2>
+    <h3 id="love-story-title" class="love-story__title">{{ heading }}</h3>
     <p class="love-story__content">{{ content }}</p>
   </section>
 </template>
@@ -25,7 +34,6 @@ const heading = computed(() => props.title?.trim() || '我们的故事')
   text-align: center;
   border-top: 1px solid var(--wedding-border);
   border-bottom: 1px solid var(--wedding-border);
-  animation: love-story-enter 0.6s ease-out both;
 }
 
 .love-story__eyebrow {
@@ -55,20 +63,4 @@ const heading = computed(() => props.title?.trim() || '我们的故事')
   color: var(--wedding-text-sub);
 }
 
-@keyframes love-story-enter {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .love-story {
-    animation: none;
-  }
-}
 </style>

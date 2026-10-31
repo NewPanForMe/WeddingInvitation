@@ -5,7 +5,6 @@ const props = defineProps<{
   groomName: string
   brideName: string
   weddingTime: string
-  salutation?: string
 }>()
 
 const WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
@@ -41,10 +40,8 @@ const isSameMonth = computed(() => {
 </script>
 
 <template>
-  <section class="wedding-info card">
-    <h2 class="section-title">婚礼时间</h2>
-
-    <p v-if="salutation" class="wedding-info__salutation">{{ salutation }}</p>
+  <section class="wedding-info">
+    <h3 class="section-title">婚礼时间</h3>
 
     <p class="wedding-info__couple">
       <span>{{ groomName }}</span>
@@ -68,13 +65,6 @@ const isSameMonth = computed(() => {
 <style scoped>
 .wedding-info {
   text-align: center;
-}
-
-.wedding-info__salutation {
-  margin: 0 0 6px;
-  font-size: 14px;
-  letter-spacing: 1px;
-  color: var(--wedding-text-sub);
 }
 
 .wedding-info__couple {

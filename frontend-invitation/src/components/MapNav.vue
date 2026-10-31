@@ -54,8 +54,8 @@ function openMap(): void {
 </script>
 
 <template>
-  <section v-if="hasLocation" class="map-nav card">
-    <h2 class="section-title">婚礼地点</h2>
+  <section v-if="hasLocation" class="map-nav">
+    <h3 class="section-title">婚礼地点</h3>
 
     <div class="map-nav__body">
       <p class="map-nav__venue">
