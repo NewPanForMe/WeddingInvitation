@@ -20,8 +20,8 @@ const heading = computed(() => props.title?.trim() || '我们的故事')
 
 <style scoped>
 .love-story {
-  margin: 34px var(--wedding-page-x) 30px;
-  padding: 26px 10px 4px;
+  margin: var(--space-8) var(--wedding-page-x);
+  padding: var(--space-6) var(--space-3) var(--space-1);
   text-align: center;
   border-top: 1px solid var(--wedding-border);
   border-bottom: 1px solid var(--wedding-border);
@@ -29,14 +29,14 @@ const heading = computed(() => props.title?.trim() || '我们的故事')
 }
 
 .love-story__eyebrow {
-  margin: 0 0 6px;
+  margin: 0 0 var(--space-2);
   font-size: 10px;
   letter-spacing: 2.8px;
-  color: var(--wedding-primary);
+  color: var(--wedding-primary-dark);
 }
 
 .love-story__title {
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-4);
   font-family: var(--wedding-font-display);
   font-size: 23px;
   font-weight: 600;
@@ -45,7 +45,7 @@ const heading = computed(() => props.title?.trim() || '我们的故事')
 }
 
 .love-story__content {
-  margin: 0 auto 26px;
+  margin: 0 auto var(--space-6);
   max-width: 34em;
   white-space: pre-line;
   font-family: var(--wedding-font-display);

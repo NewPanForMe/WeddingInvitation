@@ -75,6 +75,9 @@ public static class DbInitializer
             "ALTER TABLE photos ADD COLUMN IF NOT EXISTS photo_type text NOT NULL DEFAULT 'moment';",
             cancellationToken);
         await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE photos ADD COLUMN IF NOT EXISTS description text NULL;",
+            cancellationToken);
+        await db.Database.ExecuteSqlRawAsync(
             "ALTER TABLE invitation_config ADD COLUMN IF NOT EXISTS cover_show_in_moments boolean NOT NULL DEFAULT false;",
             cancellationToken);
         await db.Database.ExecuteSqlRawAsync(

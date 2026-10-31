@@ -54,12 +54,14 @@ export interface InviteConfig {
   rsvpDeadline: string
 }
 
-/** 照片墙条目 */
+/** 美好瞬间照片章节 */
 export interface InvitePhoto {
   id: number
   /** 相对路径如 /Wedding/upload/1.jpg */
   url: string
-  title: string
+  title: string | null
+  /** 最多 500 字的纯文本描述 */
+  description: string | null
   sortOrder: number
   type: 'cover' | 'moment'
 }

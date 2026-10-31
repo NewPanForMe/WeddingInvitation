@@ -92,7 +92,7 @@ const isSameMonth = computed(() => {
 .wedding-info__time {
   padding: 14px 10px;
   border-radius: var(--wedding-radius-sm);
-  background: linear-gradient(180deg, #fdf8f3 0%, #f7efe6 100%);
+  background: linear-gradient(180deg, var(--wedding-surface) 0%, var(--wedding-surface-soft) 100%);
   border: 1px solid var(--wedding-border);
 }
 
@@ -115,7 +115,7 @@ const isSameMonth = computed(() => {
 
 .wedding-info__clock {
   font-weight: 600;
-  color: var(--wedding-gold);
+  color: var(--wedding-gold-readable);
 }
 
 .wedding-info__raw {

@@ -1,10 +1,10 @@
 # 婚礼电子请柬 H5（frontend-invitation）
 
 移动端优先的婚礼电子请柬前端。新人通过微信把专属链接 `https://www.tunn.work/Wedding/i?token={token}` 发给宾客，
-宾客打开后即可看到个性化请柬：封面、新人姓名、婚礼时间、地点（场所名 + 详细地址）、照片墙、
+宾客打开后即可看到个性化请柬：封面、新人姓名、婚礼时间、地点（场所名 + 详细地址）、照片故事章节、
 自己的桌号，并可提交出席回复（RSVP）。
 
-无背景音乐；未认证公众号无法使用 JS-SDK 自定义转发接口，微信分享依赖页面静态 meta 信息自动抓取。
+背景音乐由后台按需开启，访客可随时暂停；未认证公众号无法使用 JS-SDK 自定义转发接口，微信分享依赖页面静态 meta 信息自动抓取。
 
 ---
 
@@ -240,9 +240,10 @@ frontend-invitation/
     │   ├── Home.vue              # 无 token 提示页
     │   └── Error.vue             # 链接失效/错误页
     └── components/
-        ├── CoverSection.vue      # 封面大图 + 渐变遮罩 + 新人姓名
+        ├── CoverSection.vue      # 4:5 封面画框 + 柔焦背景 + 新人姓名
+        ├── DecorativeMotes.vue   # 最多 6 个、离屏暂停的香槟色装饰粒子
         ├── WeddingInfo.vue       # 新人、称呼、婚礼时间（按访客本地时区渲染）
-        ├── PhotoSwipe.vue        # 照片墙（van-swipe 轮播 + 缩略图，点击 Vant ImagePreview 全屏）
+        ├── PhotoChapters.vue     # 每张照片独占一屏的 4:5 故事章节，点击 Vant ImagePreview 全屏
         ├── MapNav.vue            # 场所名 + 详细地址，高德搜索链接 + 复制地址
         └── RsvpForm.vue          # 出席回复表单与结果卡片
 ```
@@ -269,7 +270,7 @@ frontend-invitation/
     "coverUrl": "/Wedding/upload/cover.jpg",
     "rsvpDeadline": "2026-09-20T15:59:59+00:00"
   },
-  "photos": [{ "id": 1, "url": "/Wedding/upload/1.jpg", "title": "外景", "sortOrder": 1 }],
+  "photos": [{ "id": 1, "url": "/Wedding/upload/1.jpg", "title": "外景", "description": "那天的风很温柔。", "sortOrder": 1 }],
   "rsvp": { "submitted": false, "attend": null, "guestCount": null, "remark": null, "updatedAt": null },
   "rsvpOpen": true
 }
@@ -298,11 +299,12 @@ frontend-invitation/
 ## 9. 已实现的设计要点
 
 - 移动端优先：页面容器 `max-width: 430px` 居中，375~430 宽为最佳视口。
-- 暖色调：主色 `#B4886B`、金色 `#C9A227`、米白背景 `#FDF8F3`，卡片圆角 16px + 柔和阴影。
-- 封面：大图 + 多层渐变遮罩，标题为「{新人姓名} & {新人姓名} 的婚礼邀请」（写入 `document.title`）。
+- 统一暖色调：奶油米白、玫瑰棕、深可可与香槟金；Vant 的文字、表面、边框和状态色同步覆盖。
+- 封面：固定 4:5 象牙白画框、原图 `contain`、同图柔焦填充和下半部文字遮罩；标题写入 `document.title`。
 - 底部适配 `env(safe-area-inset-bottom)`。
 - 加载态用 Vant Skeleton，错误态用 Vant Empty / NoticeBar。
-- 照片墙：Vant `van-swipe` 轮播 + 缩略图网格，点击调用 Vant `showImagePreview` 全屏预览。
+- 照片故事：每张照片独占一屏，上方 4:5 画框、下方标题/描述卡片；长描述可独立滚动，点击调用 Vant `showImagePreview` 全屏预览。
+- 装饰动效：封面与照片章节使用不超过 6 个香槟色粒子，离屏暂停；支持 `prefers-reduced-motion`、`prefers-reduced-transparency` 和高对比模式。
 - RSVP：`van-radio-group`（出席/不出席）+ `van-stepper`（1 ~ `guest.maxGuests`）+ `van-field` 备注；
   提交后展示结果卡片并回显 `attend` / `guestCount` / `remark`，允许修改；`rsvpOpen=false` 时禁用并提示。
 - 地图导航：不使用经纬度，按钮打开

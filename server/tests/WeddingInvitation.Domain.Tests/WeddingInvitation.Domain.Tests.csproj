@@ -15,6 +15,8 @@
     <Compile Include="..\..\src\WeddingInvitation.Application\Common\CsvTextEncoding.cs" Link="Application\Common\CsvTextEncoding.cs" />
     <Compile Include="..\..\src\WeddingInvitation.Application\Common\InvitationAtmospherePolicy.cs" Link="Application\Common\InvitationAtmospherePolicy.cs" />
     <Compile Include="..\..\src\WeddingInvitation.Application\Common\BackgroundMusicUploadPolicy.cs" Link="Application\Common\BackgroundMusicUploadPolicy.cs" />
+    <Compile Include="..\..\src\WeddingInvitation.Application\Common\PhotoStory*.cs" Link="Application\Common\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\WeddingInvitation.Application\DTOs\ConfigDtos.cs" Link="Application\DTOs\ConfigDtos.cs" />
   </ItemGroup>
 
 </Project>

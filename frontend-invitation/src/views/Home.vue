@@ -35,7 +35,9 @@
   padding: 64px var(--wedding-page-x) 44px;
   text-align: center;
   color: var(--wedding-text-invert);
-  background: linear-gradient(150deg, #c9a227 0%, #b4886b 55%, #8a6a52 100%);
+  background:
+    radial-gradient(circle at 18% 20%, rgba(234, 215, 181, 0.34), transparent 34%),
+    linear-gradient(150deg, var(--wedding-primary) 0%, var(--wedding-primary-dark) 58%, var(--wedding-cocoa) 100%);
   border-bottom-left-radius: 28px;
   border-bottom-right-radius: 28px;
 }
@@ -74,6 +76,7 @@
 .home__text code {
   padding: 2px 6px;
   border-radius: 6px;
+  border: 1px solid var(--wedding-border);
   background-color: var(--wedding-surface-soft);
   color: var(--wedding-primary-dark);
   font-size: 13px;

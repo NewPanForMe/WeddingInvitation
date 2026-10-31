@@ -60,6 +60,7 @@ export interface PhotoDto {
   id: number
   url: string
   title: string | null
+  description: string | null
   sortOrder: number
   enabled: boolean
   type: 'cover' | 'moment'
@@ -68,6 +69,7 @@ export interface PhotoDto {
 
 export interface PhotoUpdatePayload {
   title?: string | null
+  description?: string | null
   sortOrder?: number
   enabled?: boolean
 }

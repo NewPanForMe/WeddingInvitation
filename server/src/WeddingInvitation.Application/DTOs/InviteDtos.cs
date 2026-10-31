@@ -24,6 +24,7 @@ public record PhotoDto(
     long Id,
     string Url,
     string? Title,
+    string? Description,
     int SortOrder,
     bool Enabled,
     string Type,

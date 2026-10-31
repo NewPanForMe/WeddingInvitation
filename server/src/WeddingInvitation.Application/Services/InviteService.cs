@@ -32,26 +32,35 @@ public class InviteService
 
         var photos = await _db.Photos
             .AsNoTracking()
-            .Where(p => p.Enabled)
             .OrderBy(p => p.SortOrder)
             .ThenBy(p => p.Id)
             .ToListAsync(cancellationToken);
 
         var momentPhotos = photos
             .Where(photo => PhotoVisibility.ShouldShowInMoments(photo, config?.CoverUrl))
-            .Select(Mapping.ToPhotoDto)
+            .Select(Mapping.ToPublicPhotoDto)
             .ToList();
 
         if (config?.CoverShowInMoments == true && !string.IsNullOrWhiteSpace(config.CoverUrl))
         {
-            momentPhotos.Insert(0, new PhotoDto(
-                0,
-                config.CoverUrl,
-                "婚礼封面",
-                0,
-                true,
-                "cover",
-                config.UpdatedAt));
+            var storedCover = PhotoStoryPolicy.ResolveCoverPhoto(photos, config.CoverUrl);
+            var coverDto = storedCover is null
+                ? new PhotoDto(
+                    0,
+                    config.CoverUrl,
+                    "婚礼封面",
+                    null,
+                    0,
+                    true,
+                    "cover",
+                    config.UpdatedAt)
+                : Mapping.ToPublicPhotoDto(storedCover) with
+                {
+                    SortOrder = 0,
+                    Enabled = true,
+                    Type = "cover",
+                };
+            momentPhotos.Insert(0, coverDto);
         }
 
         var rsvp = await _db.Rsvps

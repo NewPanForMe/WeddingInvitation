@@ -53,6 +53,7 @@ public class AppDbContext : DbContext, IApplicationDbContext
             builder.ToTable("photos");
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Url).IsRequired();
+            builder.Property(x => x.Description).HasColumnType("text");
             builder.Property(x => x.Type)
                 .HasColumnName("photo_type")
                 .HasConversion(

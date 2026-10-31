@@ -12,6 +12,8 @@ public class Photo
 
     public string? Title { get; set; }
 
+    public string? Description { get; set; }
+
     public int SortOrder { get; set; }
 
     public bool Enabled { get; set; } = true;

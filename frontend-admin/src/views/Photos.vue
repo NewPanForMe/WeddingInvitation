@@ -35,6 +35,7 @@ const editModal = reactive({
   saving: false,
   id: 0,
   title: '',
+  description: '',
   sortOrder: 0,
   enabled: true
 })
@@ -65,6 +66,7 @@ function handleUploaded() {
 function openEdit(photo: PhotoDto) {
   editModal.id = photo.id
   editModal.title = photo.title ?? ''
+  editModal.description = photo.description ?? ''
   editModal.sortOrder = photo.sortOrder
   editModal.enabled = photo.enabled
   editModal.show = true
@@ -75,6 +77,7 @@ async function saveEdit() {
   try {
     await updatePhoto(editModal.id, {
       title: editModal.title.trim() || null,
+      description: editModal.description.trim() || null,
       sortOrder: editModal.sortOrder,
       enabled: editModal.enabled
     })
@@ -92,6 +95,7 @@ async function toggleEnabled(photo: PhotoDto, value: boolean) {
   try {
     await updatePhoto(photo.id, {
       title: photo.title,
+      description: photo.description,
       sortOrder: photo.sortOrder,
       enabled: value
     })
@@ -183,6 +187,7 @@ async function move(index: number, delta: number) {
 
                 <div>
                   <div style="font-weight: 600">{{ photo.title || '未命名照片' }}</div>
+                  <div v-if="photo.description" class="photo-description">{{ photo.description }}</div>
                   <div class="text-muted">上传于 {{ formatDateTime(photo.createdAt) }}</div>
                 </div>
 
@@ -227,6 +232,16 @@ async function move(index: number, delta: number) {
         <n-form-item label="标题">
           <n-input v-model:value="editModal.title" placeholder="例如：外景" clearable />
         </n-form-item>
+        <n-form-item label="照片描述">
+          <n-input
+            v-model:value="editModal.description"
+            type="textarea"
+            placeholder="写下这张照片背后的故事"
+            :maxlength="500"
+            show-count
+            :autosize="{ minRows: 3, maxRows: 7 }"
+          />
+        </n-form-item>
         <n-form-item label="排序号">
           <n-input-number v-model:value="editModal.sortOrder" :min="0" style="width: 160px" />
         </n-form-item>
@@ -254,5 +269,17 @@ async function move(index: number, delta: number) {
   height: 128px;
   overflow: hidden;
   background: #f7f7f9;
+}
+
+.photo-description {
+  display: -webkit-box;
+  margin-top: 4px;
+  overflow: hidden;
+  color: #777;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-line;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 </style>

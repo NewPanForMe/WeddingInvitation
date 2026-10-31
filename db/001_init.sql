@@ -39,6 +39,7 @@ create table if not exists photos (
     id         bigserial   primary key,
     url        text        not null,
     title      text,
+    description text,
     sort_order integer     not null default 0,
     enabled    boolean     not null default true,
     photo_type text        not null default 'moment', -- moment / cover
@@ -76,6 +77,7 @@ create index if not exists idx_rsvp_guest on rsvp (guest_id);
 
 -- 兼容已部署数据库：将当前配置中的封面标记为封面照片，其余照片保留为美好瞬间。
 alter table photos add column if not exists photo_type text not null default 'moment';
+alter table photos add column if not exists description text;
 alter table invitation_config add column if not exists cover_show_in_moments boolean not null default false;
 
 update photos

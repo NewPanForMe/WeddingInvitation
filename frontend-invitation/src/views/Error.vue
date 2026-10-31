@@ -72,8 +72,8 @@ onMounted(() => {
   height: 72px;
   margin: 0 auto 8px;
   border-radius: 50%;
-  color: var(--wedding-primary);
-  background: linear-gradient(180deg, #f7efe6 0%, #f0e2d3 100%);
+  color: var(--wedding-terracotta);
+  background: linear-gradient(180deg, var(--wedding-terracotta-soft) 0%, #f1d8d1 100%);
   box-shadow: var(--wedding-shadow-soft);
 }
 
@@ -97,7 +97,7 @@ onMounted(() => {
 }
 
 .error-page__tips li::marker {
-  color: var(--wedding-gold);
+  color: var(--wedding-terracotta);
 }
 
 .error-page__back {

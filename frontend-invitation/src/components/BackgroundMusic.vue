@@ -93,10 +93,10 @@ watch(
   width: 40px;
   height: 40px;
   padding: 0;
-  border: 1px solid rgba(255, 253, 250, 0.75);
+  border: 1px solid rgba(234, 215, 181, 0.84);
   border-radius: 50%;
-  color: var(--wedding-primary-dark);
-  background-color: rgba(255, 253, 250, 0.88);
+  color: var(--wedding-primary-deep);
+  background-color: rgba(255, 248, 238, 0.9);
   box-shadow: var(--wedding-shadow-soft);
   backdrop-filter: blur(8px);
   cursor: pointer;
@@ -119,6 +119,21 @@ watch(
 @media (prefers-reduced-motion: reduce) {
   .background-music__toggle.is-playing :deep(.van-icon) {
     animation: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .background-music__toggle {
+    background: var(--wedding-surface);
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .background-music__toggle {
+    border: 2px solid var(--wedding-primary-deep);
+    background: var(--wedding-surface);
+    backdrop-filter: none;
   }
 }
 </style>

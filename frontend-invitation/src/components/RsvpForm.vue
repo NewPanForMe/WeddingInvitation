@@ -164,13 +164,17 @@ async function onSubmit(): Promise<void> {
   margin-bottom: 16px;
   padding: 14px 16px;
   border-radius: var(--wedding-radius-sm);
-  border: 1px solid rgba(201, 162, 39, 0.35);
-  background: linear-gradient(180deg, #fdf6e6 0%, #f9f0dd 100%);
+  border: 1px solid rgba(122, 87, 47, 0.35);
+  background: linear-gradient(180deg, #fbf2df 0%, #f5e8cf 100%);
 }
 
 .rsvp__result.is-declined {
-  border-color: var(--wedding-border);
-  background: linear-gradient(180deg, #f7f2ec 0%, #f2ebe3 100%);
+  border-color: rgba(155, 79, 67, 0.32);
+  background: linear-gradient(180deg, var(--wedding-terracotta-soft) 0%, #f2ddd7 100%);
+}
+
+.rsvp__result.is-declined .rsvp__result-head {
+  color: var(--wedding-terracotta);
 }
 
 .rsvp__result-head {

@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using WeddingInvitation.Domain.Entities;
 
 var photoVisibilityType = typeof(Photo).Assembly.GetType("WeddingInvitation.Domain.Services.PhotoVisibility");
@@ -60,6 +61,70 @@ Assert(
     canShowMusic.Invoke(null, [false, "/Wedding/upload/music/our-song.mp3"]) is false,
     "Background music must remain hidden when the administrator turns it off.");
 
+var photoStoryPolicyType = typeof(Photo).Assembly.GetType("WeddingInvitation.Application.Common.PhotoStoryPolicy");
+Assert(photoStoryPolicyType is not null, "PhotoStoryPolicy must define public photo text rules.");
+
+var normalizeDescription = photoStoryPolicyType!.GetMethod(
+    "NormalizeDescription",
+    BindingFlags.Public | BindingFlags.Static);
+Assert(normalizeDescription is not null, "PhotoStoryPolicy.NormalizeDescription must be public and static.");
+Assert(
+    normalizeDescription!.Invoke(null, ["  我们在海边看到了最美的日落。\r\n谢谢你一直在身边。  "]) as string
+        == "我们在海边看到了最美的日落。\r\n谢谢你一直在身边。",
+    "Photo descriptions must trim surrounding whitespace while preserving natural line breaks.");
+Assert(
+    normalizeDescription.Invoke(null, ["   "]) is null,
+    "Blank photo descriptions must be stored as null.");
+Assert(
+    (normalizeDescription.Invoke(null, [new string('爱', 501)]) as string)?.Length == 500,
+    "Photo descriptions must be limited to 500 characters.");
+
+var toPublicTitle = photoStoryPolicyType.GetMethod(
+    "ToPublicTitle",
+    BindingFlags.Public | BindingFlags.Static);
+Assert(toPublicTitle is not null, "PhotoStoryPolicy.ToPublicTitle must be public and static.");
+Assert(toPublicTitle!.Invoke(null, ["IMG_20261031_102030"]) is null, "Camera-generated IMG titles must stay hidden.");
+Assert(toPublicTitle.Invoke(null, ["DSC01234"]) is null, "Camera-generated DSC titles must stay hidden.");
+Assert(toPublicTitle.Invoke(null, ["微信图片_20261031102030"]) is null, "WeChat-generated titles must stay hidden.");
+Assert(toPublicTitle.Invoke(null, ["20261031_102030"]) is null, "Timestamp-generated titles must stay hidden.");
+Assert(
+    toPublicTitle.Invoke(null, ["  我们的第一次旅行  "]) as string == "我们的第一次旅行",
+    "Human-written photo titles must remain visible.");
+
+var resolveCoverPhoto = photoStoryPolicyType.GetMethod(
+    "ResolveCoverPhoto",
+    BindingFlags.Public | BindingFlags.Static);
+Assert(resolveCoverPhoto is not null, "PhotoStoryPolicy.ResolveCoverPhoto must preserve a stored cover photo's text.");
+var storedCover = CreatePhoto("/uploads/cover.jpg", "Cover", false);
+storedCover.Title = "我们的封面";
+storedCover.Description = "这一张，是故事的序章。";
+var resolvedCover = resolveCoverPhoto!.Invoke(
+    null,
+    [new List<Photo> { CreatePhoto("/uploads/moment.jpg", "Moment", true), storedCover }, "/uploads/cover.jpg"]);
+Assert(ReferenceEquals(resolvedCover, storedCover), "The current cover URL must resolve to its stored photo, even when disabled.");
+
+var photoUpdateRequestType = typeof(Photo).Assembly.GetType("WeddingInvitation.Application.DTOs.PhotoUpdateRequest");
+Assert(photoUpdateRequestType is not null, "PhotoUpdateRequest must support backward-compatible description updates.");
+var descriptionProperty = photoUpdateRequestType!.GetProperty("Description");
+Assert(
+    descriptionProperty?.PropertyType == typeof(JsonElement),
+    "PhotoUpdateRequest.Description must distinguish a missing property from explicit null.");
+var webJsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+var legacyRequest = JsonSerializer.Deserialize(
+    """{"title":"保留描述","sortOrder":1,"enabled":true}""",
+    photoUpdateRequestType,
+    webJsonOptions);
+var clearRequest = JsonSerializer.Deserialize(
+    """{"title":"清空描述","description":null,"sortOrder":1,"enabled":true}""",
+    photoUpdateRequestType,
+    webJsonOptions);
+Assert(
+    descriptionProperty?.GetValue(legacyRequest) is JsonElement { ValueKind: JsonValueKind.Undefined },
+    "A legacy request without description must preserve the stored value.");
+Assert(
+    descriptionProperty?.GetValue(clearRequest) is JsonElement { ValueKind: JsonValueKind.Null },
+    "An explicit null description must remain distinguishable so administrators can clear it.");
+
 var backgroundMusicUploadPolicyType = typeof(Photo).Assembly.GetType("WeddingInvitation.Application.Common.BackgroundMusicUploadPolicy");
 Assert(backgroundMusicUploadPolicyType is not null, "BackgroundMusicUploadPolicy must define allowed music files.");
 
@@ -69,6 +134,7 @@ Assert(isAllowedMusicFile!.Invoke(null, ["our-song.m4a"]) is true, "M4A music fi
 Assert(isAllowedMusicFile.Invoke(null, ["our-song.wav"]) is false, "Unsupported music formats must be rejected.");
 
 Console.WriteLine("PhotoVisibility rules passed.");
+Console.WriteLine("Photo story rules passed.");
 
 static Photo CreatePhoto(string url, string typeName, bool enabled)
 {

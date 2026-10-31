@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Globalization;
+using System.Text.Json;
 using WeddingInvitation.Application.Abstractions;
 using WeddingInvitation.Application.Common;
 using WeddingInvitation.Application.DTOs;
@@ -75,7 +76,8 @@ public class PhotoService
         var photo = new Photo
         {
             Url = $"{_options.RequestPath.TrimEnd('/')}/{dateSegment}/{storedName}",
-            Title = Path.GetFileNameWithoutExtension(fileName),
+            Title = null,
+            Description = null,
             SortOrder = sortOrder,
             Enabled = true,
             Type = type,
@@ -93,6 +95,18 @@ public class PhotoService
             ?? throw ApiException.NotFound("照片不存在");
 
         photo.Title = string.IsNullOrWhiteSpace(request.Title) ? null : request.Title.Trim();
+        if (request.Description.ValueKind != JsonValueKind.Undefined)
+        {
+            if (request.Description.ValueKind is not (JsonValueKind.Null or JsonValueKind.String))
+            {
+                throw new ApiException("照片描述必须是文本", 400);
+            }
+
+            photo.Description = PhotoStoryPolicy.NormalizeDescription(
+                request.Description.ValueKind == JsonValueKind.Null
+                    ? null
+                    : request.Description.GetString());
+        }
         photo.SortOrder = request.SortOrder;
         photo.Enabled = request.Enabled;
 

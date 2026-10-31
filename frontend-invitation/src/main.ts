@@ -17,8 +17,6 @@ import {
   Step,
   Stepper,
   Steps,
-  Swipe,
-  SwipeItem,
   Tag,
   Toast
 } from 'vant'
@@ -51,8 +49,6 @@ app.use(SkeletonParagraph)
 app.use(Step)
 app.use(Stepper)
 app.use(Steps)
-app.use(Swipe)
-app.use(SwipeItem)
 app.use(Tag)
 app.use(Toast)
 

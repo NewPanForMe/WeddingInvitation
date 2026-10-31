@@ -28,6 +28,17 @@ internal static class Mapping
         photo.Id,
         photo.Url,
         photo.Title,
+        photo.Description,
+        photo.SortOrder,
+        photo.Enabled,
+        photo.Type == PhotoType.Cover ? "cover" : "moment",
+        photo.CreatedAt);
+
+    public static PhotoDto ToPublicPhotoDto(Photo photo) => new(
+        photo.Id,
+        photo.Url,
+        PhotoStoryPolicy.ToPublicTitle(photo.Title),
+        PhotoStoryPolicy.NormalizeDescription(photo.Description),
         photo.SortOrder,
         photo.Enabled,
         photo.Type == PhotoType.Cover ? "cover" : "moment",

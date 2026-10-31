@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import { useInviteStore } from '@/stores/invite'
 import CoverSection from '@/components/CoverSection.vue'
 import WeddingInfo from '@/components/WeddingInfo.vue'
-import PhotoSwipe from '@/components/PhotoSwipe.vue'
+import PhotoChapters from '@/components/PhotoChapters.vue'
 import MapNav from '@/components/MapNav.vue'
 import RsvpForm from '@/components/RsvpForm.vue'
 import LoveStory from '@/components/LoveStory.vue'
@@ -111,7 +111,7 @@ const isError = computed(() => store.loadState === 'error')
 
       <MapNav :venue="store.config.venue" :address="store.config.address" />
 
-      <PhotoSwipe :photos="store.photos" />
+      <PhotoChapters :photos="store.photos" />
 
       <section class="table-card card card--soft">
         <h2 class="section-title">您的席位</h2>
@@ -146,11 +146,13 @@ const isError = computed(() => store.loadState === 'error')
 }
 
 .invite__skeleton-cover {
-  width: 100%;
-  height: clamp(320px, 58vh, 460px);
-  min-height: 320px;
-  max-height: 460px;
-  background: linear-gradient(150deg, #f0e5d9 0%, #e6d8c8 100%);
+  width: min(calc(100% - (var(--wedding-page-x) * 2)), 390px);
+  aspect-ratio: 4 / 5;
+  margin: var(--space-5) auto var(--space-8);
+  border: 8px solid var(--wedding-mat);
+  border-radius: 22px;
+  background: linear-gradient(150deg, #eadaca 0%, #d7b4aa 100%);
+  box-shadow: var(--wedding-shadow);
 }
 
 .invite__error {
@@ -189,10 +191,25 @@ const isError = computed(() => store.loadState === 'error')
 }
 
 .invite__footer {
+  position: relative;
   margin: 24px var(--wedding-page-x) 0;
-  padding-top: 18px;
+  padding-top: 34px;
   border-top: 1px solid var(--wedding-border);
   text-align: center;
+}
+
+.invite__footer::before {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  width: 88px;
+  height: 12px;
+  content: '';
+  background:
+    radial-gradient(ellipse at 24% 28%, var(--wedding-primary-light) 0 18%, transparent 21%),
+    radial-gradient(ellipse at 76% 72%, var(--wedding-primary-light) 0 18%, transparent 21%),
+    linear-gradient(90deg, transparent, var(--wedding-gold), transparent) center / 100% 1px no-repeat;
+  transform: translateX(-50%);
 }
 
 .invite__footer-main {
@@ -208,11 +225,9 @@ const isError = computed(() => store.loadState === 'error')
   color: var(--wedding-text-muted);
 }
 
-@media (min-width: 768px) {
-  .invite__skeleton-cover {
-    height: 68vh;
-    min-height: 520px;
-    max-height: 720px;
+@media (prefers-contrast: more) {
+  .invite__footer::before {
+    background: linear-gradient(90deg, transparent, var(--wedding-primary-deep), transparent) center / 100% 2px no-repeat;
   }
 }
 </style>
