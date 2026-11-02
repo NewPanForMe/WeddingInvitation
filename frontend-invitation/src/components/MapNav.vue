@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { showToast } from 'vant'
 import type { InviteConfig } from '@/types'
+import { getAmapSearchUrl } from './map-navigation'
 
 const props = defineProps<{
   venue: string
@@ -12,10 +13,8 @@ const props = defineProps<{
 
 const hasLocation = computed(() => Boolean(props.venue || props.address))
 
-/** 高德搜索链接（按约定不使用经纬度，直接用详细地址搜索） */
-const amapUrl = computed(
-  () => `https://uri.amap.com/search?keyword=${encodeURIComponent(props.address)}&src=wedding`
-)
+/** 地址搜索会尝试唤起高德 App，不能唤起时回退至高德 H5 搜索页。 */
+const amapUrl = computed(() => getAmapSearchUrl(props.address))
 
 async function copyAddress(): Promise<void> {
   const text = props.address
@@ -45,11 +44,11 @@ async function copyAddress(): Promise<void> {
 }
 
 function openMap(): void {
-  if (!props.address) {
+  if (!amapUrl.value) {
     showToast('暂无地址信息')
     return
   }
-  window.open(amapUrl.value, '_blank')
+  window.location.assign(amapUrl.value)
 }
 </script>
 

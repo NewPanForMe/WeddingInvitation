@@ -11,6 +11,15 @@ type PresentationModule = {
     title: string | null | undefined,
     description: string | null | undefined
   ) => 'none' | 'title' | 'description'
+  getPhotoChapterInterlude?: (
+    index: number,
+    photoCount: number
+  ) => {
+    eyebrow: string
+    title: string
+    content: string
+    stickers: readonly string[]
+  } | null
 }
 
 async function loadPresentation(): Promise<PresentationModule> {
@@ -57,4 +66,20 @@ test('photo copy mode follows trimmed title and description presence', async () 
   for (const item of cases) {
     assert.equal(getPhotoCopyMode?.(item.title, item.description), item.expected)
   }
+})
+
+test('photo chapters receive a generated interlude only between photos', async () => {
+  const { getPhotoChapterInterlude } = await loadPresentation()
+  assert.equal(typeof getPhotoChapterInterlude, 'function')
+
+  assert.equal(getPhotoChapterInterlude?.(0, 1), null)
+  assert.equal(getPhotoChapterInterlude?.(2, 3), null)
+
+  const interlude = getPhotoChapterInterlude?.(0, 3)
+  assert.deepEqual(interlude, {
+    eyebrow: 'A LITTLE MOMENT',
+    title: '心动的开端',
+    content: '有些相遇，不必说得太满，便已经足够明亮。',
+    stickers: ['🌸', '♡', '✨']
+  })
 })

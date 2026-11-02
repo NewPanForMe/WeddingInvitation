@@ -9,7 +9,6 @@ import MapNav from '@/components/MapNav.vue'
 import RsvpForm from '@/components/RsvpForm.vue'
 import LoveStory from '@/components/LoveStory.vue'
 import BackgroundMusic from '@/components/BackgroundMusic.vue'
-import EditorialSectionHeader from '@/components/EditorialSectionHeader.vue'
 import InvitationStoryIntro from '@/components/InvitationStoryIntro.vue'
 import { shouldShowStorySection } from '@/components/invitation-presentation'
 
@@ -81,55 +80,31 @@ const showStorySection = computed(() =>
     <div v-else-if="isError" class="invite__error">
       <van-empty image="error" :description="store.errorMessage || '请柬加载失败'" />
       <div class="invite__error-tip">
-        <van-notice-bar
-          wrapable
-          :scrollable="false"
-          left-icon="info-o"
-          text="请确认链接完整，或联系新人重新发送专属链接。"
-        />
+        <van-notice-bar wrapable :scrollable="false" left-icon="info-o" text="请确认链接完整，或联系新人重新发送专属链接。" />
         <router-link to="/" class="invite__error-link">返回首页</router-link>
       </div>
     </div>
 
     <!-- 正常内容 -->
     <template v-else-if="store.hasInvite && store.config && store.guest">
-      <BackgroundMusic
-        :src="store.config.backgroundMusicUrl"
-        :enabled="store.config.musicEnabled"
-      />
+      <BackgroundMusic :src="store.config.backgroundMusicUrl" :enabled="store.config.musicEnabled" />
 
-      <CoverSection
-        :cover-url="store.config.coverUrl"
-        :groom-name="store.config.groomName"
-        :bride-name="store.config.brideName"
-        :wedding-time="store.config.weddingTime"
-        :photos="store.photos"
-      />
+      <CoverSection :cover-url="store.config.coverUrl" :groom-name="store.config.groomName"
+        :bride-name="store.config.brideName" :wedding-time="store.config.weddingTime" :photos="store.photos" />
 
       <section v-if="showStorySection" class="invite-story">
-        <EditorialSectionHeader index="01" eyebrow="OUR STORY" title="我们的故事" />
 
-        <InvitationStoryIntro
-          :salutation="store.guest.salutation"
-          :message="store.config.openingMessage"
-        />
+        <InvitationStoryIntro :salutation="store.guest.salutation" :message="store.config.openingMessage" />
 
-        <LoveStory
-          :title="store.config.storyTitle"
-          :content="store.config.storyContent"
-        />
+        <LoveStory :title="store.config.storyTitle" :content="store.config.storyContent" />
 
         <PhotoChapters :photos="store.photos" />
       </section>
 
       <section class="wedding-details">
-        <EditorialSectionHeader index="02" eyebrow="WEDDING DAY" title="婚宴信息" />
 
-        <WeddingInfo
-          :groom-name="store.config.groomName"
-          :bride-name="store.config.brideName"
-          :wedding-time="store.config.weddingTime"
-        />
+        <WeddingInfo :groom-name="store.config.groomName" :bride-name="store.config.brideName"
+          :wedding-time="store.config.weddingTime" />
 
         <MapNav :venue="store.config.venue" :address="store.config.address" />
 
