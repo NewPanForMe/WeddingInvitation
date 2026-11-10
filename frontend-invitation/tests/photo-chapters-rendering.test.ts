@@ -14,9 +14,8 @@ test('photo chapters avoid a filtered duplicate of each photo during fast scroll
   assert.doesNotMatch(source, /<DecorativeMotes/)
 })
 
-test('animated stickers stay limited to the active chapter and respect reduced motion', () => {
-  assert.match(source, /🌹/)
-  assert.match(source, /🪐/)
-  assert.match(source, /\.photo-chapter\.is-active\s+\.photo-chapter__sticker/)
-  assert.match(source, /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.photo-chapter__sticker/)
+test('rose decorations are hidden from assistive technology and petals animate only with motion enabled', () => {
+  assert.match(source, /class="photo-chapter__roses"\s+aria-hidden="true"/)
+  assert.match(source, /\.photo-chapter__roses\s*\{[^}]*pointer-events:\s*none/)
+  assert.match(source, /@media \(prefers-reduced-motion: no-preference\)\s*\{\s*\.photo-chapter\.is-active\s+\.photo-chapter__petal\s*\{[^}]*animation:/)
 })

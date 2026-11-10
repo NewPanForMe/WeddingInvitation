@@ -16,8 +16,12 @@ const photoCopyModes = computed(() =>
 const photoInterludes = computed(() =>
   gallery.value.map((_, index) => getPhotoChapterInterlude(index, gallery.value.length))
 )
+const rosePetalStyles = Array.from({ length: 28 }, (_, index) => ({
+  '--petal-left': `${2 + ((index * 37) % 91)}%`,
+  '--petal-delay': `${-(index * 0.61 + 0.2)}s`
+}))
 const storyRoot = ref<HTMLElement | null>(null)
-const activeIndex = ref(0)
+const activeIndex = ref<number | null>(null)
 const visibleIndices = ref<Set<number>>(new Set([0]))
 const failedIndices = ref<Set<number>>(new Set())
 const intersectionRatios = new Map<number, number>()
@@ -35,6 +39,7 @@ function observeChapters(): void {
 
   if (!('IntersectionObserver' in window)) {
     visibleIndices.value = new Set(elements.map((_, index) => index))
+    activeIndex.value = 0
     return
   }
 
@@ -49,7 +54,7 @@ function observeChapters(): void {
 
       visibleIndices.value = nextVisible
       const mostVisible = [...intersectionRatios.entries()].sort((a, b) => b[1] - a[1])[0]
-      if (mostVisible && mostVisible[1] > 0) activeIndex.value = mostVisible[0]
+      activeIndex.value = mostVisible && mostVisible[1] >= 0.12 ? mostVisible[0] : null
     },
     { threshold: [0, 0.12, 0.35, 0.6, 0.8] }
   )
@@ -85,7 +90,7 @@ function handleKeydown(event: KeyboardEvent): void {
     },
     storyVisible
   )
-  if (step === 0) return
+  if (step === 0 || activeIndex.value === null) return
   const targetIndex = getAdjacentChapterIndex(activeIndex.value, step, gallery.value.length)
   if (targetIndex === null) return
 
@@ -100,7 +105,7 @@ function handleKeydown(event: KeyboardEvent): void {
 watch(
   () => gallery.value.map((photo) => photo.id).join(','),
   async () => {
-    activeIndex.value = 0
+    activeIndex.value = null
     visibleIndices.value = new Set([0])
     failedIndices.value = new Set()
     await nextTick()
@@ -124,36 +129,28 @@ onBeforeUnmount(() => {
     <div class="photo-story__transition photo-story__transition--in" aria-hidden="true" />
 
     <template v-for="(photo, index) in gallery" :key="photo.id">
-      <article
-        :data-photo-chapter="index"
-        class="photo-chapter"
-        :class="{
-          'is-visible': visibleIndices.has(index),
-          'is-active': activeIndex === index,
-          'has-image-error': failedIndices.has(index),
-          [`photo-chapter--${photoCopyModes[index]}`]: true
-        }"
-        :aria-label="`美好瞬间，第 ${index + 1} 张，共 ${gallery.length} 张`"
-      >
+      <article :data-photo-chapter="index" class="photo-chapter" :class="{
+        'is-visible': visibleIndices.has(index),
+        'is-active': activeIndex === index,
+        'has-image-error': failedIndices.has(index),
+        [`photo-chapter--${photoCopyModes[index]}`]: true
+      }" :aria-label="`美好瞬间，第 ${index + 1} 张，共 ${gallery.length} 张`">
         <div class="photo-chapter__stage">
+          <div class="photo-chapter__roses" aria-hidden="true">
+            <template v-if="activeIndex === index">
+              <span v-for="(style, petal) in rosePetalStyles" :key="petal" class="photo-chapter__petal" :style="style" />
+            </template>
+          </div>
+
           <p v-if="gallery.length > 1" class="photo-chapter__progress" aria-hidden="true">
             {{ String(index + 1).padStart(2, '0') }} / {{ String(gallery.length).padStart(2, '0') }}
           </p>
 
-          <button
-            type="button"
-            class="photo-chapter__media"
-            :aria-label="`全屏查看${photo.title ? `：${photo.title}` : `第 ${index + 1} 张婚礼照片`}`"
-            @click="preview(index)"
-          >
+          <button type="button" class="photo-chapter__media"
+            :aria-label="`全屏查看${photo.title ? `：${photo.title}` : `第 ${index + 1} 张婚礼照片`}`" @click="preview(index)">
             <span class="photo-chapter__visual">
-              <van-image
-                :src="photo.url"
-                fit="contain"
-                :alt="photo.title || `第 ${index + 1} 张婚礼照片`"
-                class="photo-chapter__image"
-                @error="markImageFailed(index)"
-              >
+              <van-image :src="photo.url" fit="contain" :alt="photo.title || `第 ${index + 1} 张婚礼照片`"
+                class="photo-chapter__image" @error="markImageFailed(index)">
                 <template #loading>
                   <van-loading type="spinner" color="#fffaf4" size="24" />
                 </template>
@@ -167,25 +164,14 @@ onBeforeUnmount(() => {
             </span>
           </button>
 
-          <span class="photo-chapter__sticker photo-chapter__sticker--top" aria-hidden="true">
-            {{ ['🌸', '🌹', '✦'][index % 3] }}
-          </span>
-          <span class="photo-chapter__sticker photo-chapter__sticker--orbit" aria-hidden="true">🪐</span>
-          <span class="photo-chapter__sticker photo-chapter__sticker--bottom" aria-hidden="true">♡</span>
-
           <p v-if="index === 0 && gallery.length > 1" class="photo-chapter__hint" aria-hidden="true">
             <span>向上滑动</span>
             <span class="photo-chapter__hint-line" />
           </p>
         </div>
 
-        <div
-          v-if="photoCopyModes[index] !== 'none'"
-          class="photo-chapter__copy"
-          role="region"
-          :aria-label="`第 ${index + 1} 张照片文字`"
-          :tabindex="photoCopyModes[index] === 'description' ? 0 : undefined"
-        >
+        <div v-if="photoCopyModes[index] !== 'none'" class="photo-chapter__copy" role="region"
+          :aria-label="`第 ${index + 1} 张照片文字`" :tabindex="photoCopyModes[index] === 'description' ? 0 : undefined">
           <div class="photo-chapter__copy-inner">
             <p v-if="index === 0" class="photo-chapter__eyebrow">美好瞬间</p>
             <h3 v-if="photo.title?.trim()" class="photo-chapter__title">{{ photo.title.trim() }}</h3>
@@ -197,13 +183,8 @@ onBeforeUnmount(() => {
       </article>
 
       <aside v-if="photoInterludes[index]" class="photo-interlude" aria-label="婚礼寄语">
-        <span
-          v-for="(sticker, stickerIndex) in photoInterludes[index]!.stickers"
-          :key="`${photo.id}-${stickerIndex}`"
-          class="photo-interlude__sticker"
-          :class="`photo-interlude__sticker--${stickerIndex + 1}`"
-          aria-hidden="true"
-        >
+        <span v-for="(sticker, stickerIndex) in photoInterludes[index]!.stickers" :key="`${photo.id}-${stickerIndex}`"
+          class="photo-interlude__sticker" :class="`photo-interlude__sticker--${stickerIndex + 1}`" aria-hidden="true">
           {{ sticker }}
         </span>
         <p class="photo-interlude__eyebrow">{{ photoInterludes[index]!.eyebrow }}</p>
@@ -252,8 +233,7 @@ onBeforeUnmount(() => {
   flex: 1 0 auto;
   place-items: center;
   min-height: clamp(430px, 72svh, 700px);
-  padding: calc(var(--space-8) + env(safe-area-inset-top, 0px)) var(--wedding-page-x)
-    var(--space-8);
+  padding: calc(var(--space-8) + env(safe-area-inset-top, 0px)) var(--wedding-page-x) var(--space-8);
   overflow: hidden;
   isolation: isolate;
   color: var(--wedding-text-invert);
@@ -329,7 +309,7 @@ onBeforeUnmount(() => {
   letter-spacing: 0.08em;
 }
 
-.photo-chapter__error > span:first-child {
+.photo-chapter__error>span:first-child {
   font-size: 32px;
   line-height: 1;
 }
@@ -419,88 +399,129 @@ onBeforeUnmount(() => {
   transform-origin: right center;
 }
 
-.photo-chapter__sticker {
+.photo-chapter__roses {
   position: absolute;
-  z-index: 3;
-  display: grid;
-  width: 32px;
-  height: 32px;
-  place-items: center;
-  border: 1px solid rgba(255, 250, 244, 0.44);
-  border-radius: 50%;
-  color: rgba(255, 250, 244, 0.92);
-  font-family: var(--wedding-font-display);
-  font-size: 16px;
-  line-height: 1;
+  inset: 0;
+  overflow: hidden;
   pointer-events: none;
 }
 
-.photo-chapter__sticker--top {
-  top: calc(var(--space-6) + env(safe-area-inset-top, 0px));
-  left: var(--wedding-page-x);
+.photo-chapter__roses::before,
+.photo-chapter__roses::after {
+  position: absolute;
+  z-index: 1;
+  width: clamp(78px, 28%, 118px);
+  aspect-ratio: 8 / 9;
+  content: '';
+  background: url('../assets/photo-rose-spray.svg') center / contain no-repeat;
+  opacity: 0.86;
+  transform: rotate(var(--rose-tilt));
 }
 
-.photo-chapter__sticker--bottom {
-  right: var(--wedding-page-x);
-  bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+.photo-chapter__roses::before {
+  --rose-tilt: -12deg;
+  top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
+  left: 2%;
 }
 
-.photo-chapter__sticker--orbit {
-  right: calc(var(--wedding-page-x) + 6px);
-  top: 30%;
-  border: 0;
-  font-size: 18px;
+.photo-chapter__roses::after {
+  --rose-tilt: 152deg;
+  right: 1%;
+  bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+}
+
+.photo-chapter__petal {
+  --petal-size: 19px;
+  --petal-duration: 9.2s;
+  --petal-opacity: 0.76;
+
+  position: absolute;
+  z-index: 3;
+  inset-block: 0;
+  left: var(--petal-left);
+  display: none;
+  width: var(--petal-size);
+  opacity: 0;
+}
+
+.photo-chapter__petal::before {
+  display: block;
+  aspect-ratio: 32 / 30;
+  content: '';
+  background: url('../assets/photo-rose-petal.svg') center / contain no-repeat;
+}
+
+.photo-chapter__petal:nth-child(3n) {
+  --petal-duration: 11.4s;
+}
+
+.photo-chapter__petal:nth-child(3n + 1) {
+  --petal-duration: 7.8s;
+}
+
+.photo-chapter__petal:nth-child(4n + 1) {
+  --petal-size: 27px;
+  --petal-opacity: 0.88;
+}
+
+.photo-chapter__petal:nth-child(4n + 3) {
+  --petal-size: 15px;
+  --petal-opacity: 0.64;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .photo-chapter.is-active .photo-chapter__sticker {
-    will-change: transform, opacity;
+  .photo-chapter.is-active .photo-chapter__petal {
+    display: block;
+    animation: rose-petal-fall var(--petal-duration) linear var(--petal-delay) infinite;
   }
 
-  .photo-chapter.is-active .photo-chapter__sticker--top {
-    animation: sticker-petal-drift 3.8s ease-in-out infinite alternate;
+  .photo-chapter.is-active .photo-chapter__petal::before {
+    animation: rose-petal-turn 3.8s ease-in-out var(--petal-delay) infinite alternate;
   }
 
-  .photo-chapter.is-active .photo-chapter__sticker--orbit {
-    animation: sticker-orbit 4.6s ease-in-out infinite;
+  .photo-chapter.is-active .photo-chapter__roses::before,
+  .photo-chapter.is-active .photo-chapter__roses::after {
+    animation: rose-sway 5s ease-in-out infinite alternate;
   }
 
-  .photo-chapter.is-active .photo-chapter__sticker--bottom {
-    animation: sticker-heartbeat 2.4s ease-in-out infinite;
+  .photo-chapter.is-active .photo-chapter__roses::after {
+    animation-delay: -2s;
   }
 }
 
-@keyframes sticker-petal-drift {
+@keyframes rose-petal-fall {
   from {
-    transform: translate3d(0, 0, 0) rotate(-5deg);
+    opacity: 0;
+    transform: translate3d(0, -6%, 0);
+  }
+
+  10%, 89% {
+    opacity: var(--petal-opacity);
   }
 
   to {
-    opacity: 0.76;
-    transform: translate3d(10px, 15px, 0) rotate(13deg);
+    opacity: 0;
+    transform: translate3d(-8px, 103%, 0);
   }
 }
 
-@keyframes sticker-orbit {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) rotate(-8deg);
+@keyframes rose-petal-turn {
+  from {
+    transform: translateX(-10px) rotate(-38deg) scaleX(0.62);
   }
 
-  50% {
-    opacity: 0.72;
-    transform: translate3d(-12px, 10px, 0) rotate(10deg);
+  to {
+    transform: translateX(16px) rotate(108deg);
   }
 }
 
-@keyframes sticker-heartbeat {
-  0%,
-  100% {
-    transform: scale(1);
+@keyframes rose-sway {
+  from {
+    transform: rotate(var(--rose-tilt));
   }
 
-  45% {
-    transform: scale(1.14);
+  to {
+    transform: translateY(5px) rotate(calc(var(--rose-tilt) + 7deg));
   }
 }
 
@@ -591,8 +612,7 @@ onBeforeUnmount(() => {
 @media (max-height: 620px) and (orientation: portrait) {
   .photo-chapter__stage {
     min-height: 72svh;
-    padding-block: calc(var(--space-4) + env(safe-area-inset-top, 0px))
-      var(--space-4);
+    padding-block: calc(var(--space-4) + env(safe-area-inset-top, 0px)) var(--space-4);
   }
 
   .photo-chapter--none .photo-chapter__stage {
@@ -624,8 +644,7 @@ onBeforeUnmount(() => {
   .photo-chapter__stage {
     grid-column: 1;
     min-height: 100svh;
-    padding: calc(var(--space-4) + env(safe-area-inset-top, 0px)) var(--space-3)
-      calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+    padding: calc(var(--space-4) + env(safe-area-inset-top, 0px)) var(--space-3) calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
   }
 
   .photo-chapter__media {
@@ -651,10 +670,9 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .photo-chapter__media,
-  .photo-chapter__copy,
-  .photo-chapter__sticker {
-    animation: none;
+  .photo-chapter__copy {
     transition: none;
   }
 }
